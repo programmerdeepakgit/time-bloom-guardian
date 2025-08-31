@@ -8,7 +8,7 @@ import { storageUtils } from '@/utils/storage';
 import { Key, Mail, User, Phone, MapPin, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-const API_KEY = 'hellodeepak@2458';
+const API_KEY = 'allthekingisdeepak@2458';
 
 interface KeyGenerationProps {
   onKeyGenerated: (userData: UserData) => void;
@@ -16,7 +16,7 @@ interface KeyGenerationProps {
 
 const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
   const { toast } = useToast();
-  const [step, setStep] = useState<'api' | 'details' | 'verification'>('api');
+  const [step, setStep] = useState<'api' | 'details'>('api');
   const [apiKey, setApiKey] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -26,9 +26,6 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
     phone: '',
     email: '',
   });
-  const [verificationCode, setVerificationCode] = useState('');
-  const [generatedCode, setGeneratedCode] = useState('');
-  const [generatedKey, setGeneratedKey] = useState('');
 
   const handleApiSubmit = () => {
     if (apiKey === API_KEY) {
@@ -79,9 +76,6 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
     return true;
   };
 
-  const generateVerificationCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  };
 
   const generateAccessKey = () => {
     const timestamp = Date.now().toString(36);
@@ -92,66 +86,34 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
   const handleDetailsSubmit = () => {
     if (!validateForm()) return;
 
-    const code = generateVerificationCode();
-    setGeneratedCode(code);
-    setStep('verification');
+    const key = generateAccessKey();
+    const userData: UserData = {
+      ...formData,
+      isVerified: true,
+      key,
+      registrationDate: new Date().toISOString(),
+    };
 
-    // Simulate email sending
-    toast({
-      title: "Verification Code Sent",
-      description: `A verification code has been sent to ${formData.email}. For demo purposes, use: ${code}`,
-    });
-  };
+    try {
+      storageUtils.saveUserData(userData);
+      storageUtils.saveAppKey(key);
 
-  const handleVerificationSubmit = () => {
-    if (!verificationCode.trim()) {
       toast({
-        title: "Verification Code Required",
-        description: "Please enter the verification code.",
-        variant: "destructive",
+        title: "Account Created Successfully!",
+        description: "Your JEE Timer account has been activated.",
       });
-      return;
-    }
 
-    if (verificationCode === generatedCode) {
-      const key = generateAccessKey();
-      const userData: UserData = {
-        ...formData,
-        isVerified: true,
-        key,
-        registrationDate: new Date().toISOString(),
-      };
-
-      setGeneratedKey(key);
-      
-      try {
-        storageUtils.saveUserData(userData);
-        storageUtils.saveAppKey(key);
-
-        toast({
-          title: "Account Created Successfully!",
-          description: "Your JEE Timer account has been activated.",
-        });
-
-        // Show success message with key for 3 seconds before redirecting
-        setTimeout(() => {
-          onKeyGenerated(userData);
-        }, 3000);
-      } catch (error) {
-        toast({
-          title: "Error Saving Data",
-          description: "Failed to save your account data. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } else {
+      // Redirect to app immediately
+      onKeyGenerated(userData);
+    } catch (error) {
       toast({
-        title: "Invalid Verification Code",
-        description: "Please enter the correct verification code and try again.",
+        title: "Error Saving Data",
+        description: "Failed to save your account data. Please try again.",
         variant: "destructive",
       });
     }
   };
+
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -169,7 +131,6 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
           <p className="text-muted-foreground">
             {step === 'api' && 'Enter API Key to Continue'}
             {step === 'details' && 'Create Your Account'}
-            {step === 'verification' && 'Verify Your Email'}
           </p>
         </div>
 
@@ -284,59 +245,12 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
                 onClick={handleDetailsSubmit}
                 className="w-full"
               >
-                Generate Access Key
+                Create Account & Get Access
               </TimerButton>
             </div>
           </Card>
         )}
 
-        {/* Verification Step */}
-        {step === 'verification' && (
-          <Card className="gradient-card p-6">
-            <div className="space-y-4">
-              <div className="text-center space-y-2">
-                <Mail className="w-12 h-12 text-primary mx-auto" />
-                <h3 className="text-lg font-semibold">Check Your Email</h3>
-                <p className="text-sm text-muted-foreground">
-                  We've sent a verification code to {formData.email}
-                </p>
-                <p className="text-xs text-warning font-mono bg-warning/10 p-2 rounded">
-                  Demo Code: {generatedCode}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Verification Code</Label>
-                <Input
-                  placeholder="Enter 6-digit code"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  maxLength={6}
-                />
-              </div>
-
-              {generatedKey && (
-                <div className="text-center space-y-2">
-                  <p className="text-sm text-success">✓ Account Created Successfully!</p>
-                  <div className="bg-success/10 p-3 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">Your Access Key:</p>
-                    <p className="font-mono text-sm text-success">{generatedKey}</p>
-                  </div>
-                </div>
-              )}
-
-              <TimerButton
-                variant="primary"
-                size="lg"
-                onClick={handleVerificationSubmit}
-                className="w-full"
-                disabled={verificationCode.length !== 6}
-              >
-                Verify & Activate Account
-              </TimerButton>
-            </div>
-          </Card>
-        )}
 
         {/* Footer */}
         <div className="text-center">

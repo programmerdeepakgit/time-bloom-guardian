@@ -1,12 +1,12 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { StudyRecord } from '@/types';
 import { formatTime, formatDateTime } from './timer';
 
 // Extend jsPDF type to include autoTable
 declare module 'jspdf' {
   interface jsPDF {
-    autoTable: (options: any) => jsPDF;
+    autoTable: typeof autoTable;
   }
 }
 
@@ -47,8 +47,8 @@ export const generatePDFReport = (
     formatTime(record.duration)
   ]);
   
-  // Add table
-  doc.autoTable({
+  // Add table using autoTable function directly
+  autoTable(doc, {
     head: [tableHeaders],
     body: tableData,
     startY: 70,
