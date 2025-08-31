@@ -1,0 +1,44 @@
+{
+  "name": "JEE TIMER - Study Time Tracker",
+  "short_name": "JEE TIMER",
+  "description": "Track your JEE preparation with precision. Monitor self-study and lecture hours with detailed reports.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#2563eb",
+  "background_color": "#0f1419",
+  "orientation": "portrait",
+  "categories": ["education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Self Study Timer",
+      "short_name": "Self Study",
+      "description": "Start your self study session",
+      "url": "/?action=self-study",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Lecture Study Timer",
+      "short_name": "Lecture Study",
+      "description": "Start your lecture study session",
+      "url": "/?action=lecture-study",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
