@@ -6,7 +6,7 @@ import { formatTime, formatDateTime } from './timer';
 // Extend jsPDF type to include autoTable
 declare module 'jspdf' {
   interface jsPDF {
-    autoTable: (options: any) => void;
+    autoTable: (options: any) => jsPDF;
   }
 }
 
@@ -14,27 +14,28 @@ export const generatePDFReport = (
   records: StudyRecord[],
   studyType: 'self-study' | 'lecture-study'
 ): void => {
-  const doc = new jsPDF();
-  
-  // Add title
-  doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  doc.text('JEE TIMER', 105, 20, { align: 'center' });
-  
-  // Add subtitle
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'normal');
-  const titleText = studyType === 'self-study' ? 'Self Study Report' : 'Lecture Study Report';
-  doc.text(titleText, 105, 30, { align: 'center' });
-  
-  // Add date
-  doc.setFontSize(10);
-  doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, 105, 40, { align: 'center' });
-  
-  // Calculate total time
-  const totalTime = records.reduce((sum, record) => sum + record.duration, 0);
-  doc.text(`Total Study Time: ${formatTime(totalTime)}`, 105, 48, { align: 'center' });
-  doc.text(`Total Sessions: ${records.length}`, 105, 56, { align: 'center' });
+  try {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('JEE TIMER', 105, 20, { align: 'center' });
+    
+    // Add subtitle
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'normal');
+    const titleText = studyType === 'self-study' ? 'Self Study Report' : 'Lecture Study Report';
+    doc.text(titleText, 105, 30, { align: 'center' });
+    
+    // Add date
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, 105, 40, { align: 'center' });
+    
+    // Calculate total time
+    const totalTime = records.reduce((sum, record) => sum + record.duration, 0);
+    doc.text(`Total Study Time: ${formatTime(totalTime)}`, 105, 48, { align: 'center' });
+    doc.text(`Total Sessions: ${records.length}`, 105, 56, { align: 'center' });
   
   // Prepare table data
   const tableHeaders = ['Date', 'Subject', 'Start Time', 'End Time', 'Duration'];
@@ -71,7 +72,11 @@ export const generatePDFReport = (
   doc.setFontSize(8);
   doc.text('Made by programmer_deepak', 105, pageHeight - 10, { align: 'center' });
   
-  // Save the PDF
-  const fileName = `${studyType}-report-${new Date().toISOString().split('T')[0]}.pdf`;
-  doc.save(fileName);
+    // Save the PDF
+    const fileName = `${studyType}-report-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw new Error('Failed to generate PDF report');
+  }
 };

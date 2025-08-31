@@ -104,30 +104,50 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
   };
 
   const handleVerificationSubmit = () => {
+    if (!verificationCode.trim()) {
+      toast({
+        title: "Verification Code Required",
+        description: "Please enter the verification code.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (verificationCode === generatedCode) {
       const key = generateAccessKey();
       const userData: UserData = {
         ...formData,
         isVerified: true,
         key,
+        registrationDate: new Date().toISOString(),
       };
 
       setGeneratedKey(key);
-      storageUtils.saveUserData(userData);
-      storageUtils.saveAppKey(key);
+      
+      try {
+        storageUtils.saveUserData(userData);
+        storageUtils.saveAppKey(key);
 
-      toast({
-        title: "Account Created Successfully!",
-        description: "Your JEE Timer account has been activated.",
-      });
+        toast({
+          title: "Account Created Successfully!",
+          description: "Your JEE Timer account has been activated.",
+        });
 
-      setTimeout(() => {
-        onKeyGenerated(userData);
-      }, 2000);
+        // Show success message with key for 3 seconds before redirecting
+        setTimeout(() => {
+          onKeyGenerated(userData);
+        }, 3000);
+      } catch (error) {
+        toast({
+          title: "Error Saving Data",
+          description: "Failed to save your account data. Please try again.",
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Invalid Verification Code",
-        description: "Please enter the correct verification code.",
+        description: "Please enter the correct verification code and try again.",
         variant: "destructive",
       });
     }
