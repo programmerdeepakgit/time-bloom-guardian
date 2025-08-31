@@ -2,7 +2,9 @@
   "name": "JEE TIMER - Study Time Tracker",
   "short_name": "JEE TIMER",
   "description": "Track your JEE preparation with precision. Monitor self-study and lecture hours with detailed reports.",
+  "id": "/?source=pwa",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#2563eb",
   "background_color": "#0f1419",
@@ -10,9 +12,15 @@
   "categories": ["education", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "16x16 32x32 48x48",
-      "type": "image/x-icon"
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
@@ -23,8 +31,9 @@
       "url": "/?action=self-study",
       "icons": [
         {
-          "src": "/favicon.ico",
-          "sizes": "192x192"
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -35,8 +44,9 @@
       "url": "/?action=lecture-study",
       "icons": [
         {
-          "src": "/favicon.ico",
-          "sizes": "192x192"
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
