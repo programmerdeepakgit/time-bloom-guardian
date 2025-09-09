@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TimerButton } from '@/components/ui/timer-button';
-import { supabaseUtils } from '@/utils/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { storageUtils } from '@/utils/storage';
 import { useToast } from '@/hooks/use-toast';
 import { User, Check, X } from 'lucide-react';
@@ -29,8 +29,14 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUserna
 
     setIsChecking(true);
     try {
-      const { exists } = await supabaseUtils.checkUsernameExists(usernameToCheck);
-      setIsAvailable(!exists);
+      const { data, error } = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', usernameToCheck)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      setIsAvailable(!data);
     } catch (error) {
       setIsAvailable(null);
     } finally {
@@ -85,7 +91,11 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUserna
 
     setIsLoading(true);
     try {
-      const { error } = await supabaseUtils.updateUsername(userData.key, username);
+      const { error } = await supabase
+        .from('users')
+        .update({ username })
+        .eq('access_key', userData.key);
+      
       if (error) throw error;
 
       // Update local storage

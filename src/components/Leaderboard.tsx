@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { TimerButton } from '@/components/ui/timer-button';
-import { supabaseUtils, LeaderboardEntry } from '@/utils/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { storageUtils } from '@/utils/storage';
 import { formatTime } from '@/utils/timer';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +15,15 @@ import {
   TrendingUp,
   Users
 } from 'lucide-react';
+
+interface LeaderboardEntry {
+  id: string;
+  username: string;
+  total_study_time: number;
+  name: string;
+  class: string;
+  updated_at: string;
+}
 
 interface LeaderboardProps {
   onBack: () => void;
@@ -30,7 +39,13 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabaseUtils.getLeaderboard();
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, username, total_study_time, name, class, updated_at')
+        .not('username', 'is', null)
+        .order('total_study_time', { ascending: false })
+        .limit(50);
+      
       if (error) throw error;
       setLeaderboardData(data || []);
     } catch (error) {
@@ -55,7 +70,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       const totalTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0) +
                        lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
 
-      const { error } = await supabaseUtils.updateStudyTime(userData.key, totalTime);
+      const { error } = await supabase
+        .from('users')
+        .update({ 
+          total_study_time: totalTime,
+          updated_at: new Date().toISOString()
+        })
+        .eq('access_key', userData.key);
+      
       if (error) throw error;
 
       toast({
