@@ -17,6 +17,7 @@ export interface UserData {
   email: string;
   isVerified: boolean;
   key: string;
+  username?: string;
   registrationDate?: string;
 }
 

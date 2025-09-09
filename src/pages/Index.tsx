@@ -7,6 +7,7 @@ import Home from '@/components/Home';
 import Timer from '@/components/Timer';
 import StudyRecords from '@/components/StudyRecords';
 import PDFGenerator from '@/components/PDFGenerator';
+import Leaderboard from '@/components/Leaderboard';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState<string>('auth');
@@ -90,6 +91,9 @@ const Index = () => {
       ) : (
         <Home onNavigate={handleNavigate} />
       );
+    
+    case 'leaderboard':
+      return <Leaderboard onBack={handleBackToHome} />;
     
     default:
       return <Home onNavigate={handleNavigate} />;

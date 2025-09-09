@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { TimerButton } from '@/components/ui/timer-button';
 import { UserData } from '@/types';
 import { storageUtils } from '@/utils/storage';
+import { supabaseUtils } from '@/utils/supabase';
 import { Key, Mail, User, Phone, MapPin, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -83,7 +84,7 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
     return `JEE-${timestamp}-${random}`.toUpperCase();
   };
 
-  const handleDetailsSubmit = () => {
+  const handleDetailsSubmit = async () => {
     if (!validateForm()) return;
 
     const key = generateAccessKey();
@@ -95,8 +96,16 @@ const KeyGeneration: React.FC<KeyGenerationProps> = ({ onKeyGenerated }) => {
     };
 
     try {
+      // Save to local storage first
       storageUtils.saveUserData(userData);
       storageUtils.saveAppKey(key);
+
+      // Save to Supabase database
+      const { error } = await supabaseUtils.createUser(userData);
+      if (error) {
+        console.warn('Failed to save to database:', error);
+        // Don't block the user if database save fails
+      }
 
       toast({
         title: "Account Created Successfully!",

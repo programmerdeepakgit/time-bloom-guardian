@@ -9,17 +9,29 @@ import {
   FileText, 
   GraduationCap, 
   Clock,
-  TrendingUp 
+  TrendingUp,
+  Trophy,
+  User,
+  Settings
 } from 'lucide-react';
+import UsernameModal from './UsernameModal';
 
 interface HomeProps {
   onNavigate: (page: string, studyType?: 'self-study' | 'lecture-study') => void;
 }
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
+  const [showUsernameModal, setShowUsernameModal] = React.useState(false);
+  const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
   const userData = storageUtils.getUserData();
   const selfStudyRecords = storageUtils.getRecordsByType('self-study');
   const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
+
+  React.useEffect(() => {
+    if (userData?.username) {
+      setCurrentUsername(userData.username);
+    }
+  }, [userData]);
 
   const getSelfStudyStats = () => {
     const totalTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0);
@@ -92,14 +104,44 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TimerButton
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowUsernameModal(true)}
+                className="flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                {currentUsername ? 'Change Username' : 'Set Username'}
+              </TimerButton>
+            </div>
+            
+            <TimerButton
+              variant="secondary"
+              onClick={() => onNavigate('leaderboard')}
+              className="flex items-center gap-2"
+            >
+              <Trophy className="w-4 h-4" />
+              Leaderboard
+            </TimerButton>
+          </div>
+          
           <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
             <GraduationCap className="w-8 h-8 text-primary" />
           </div>
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">JEE TIMER</h1>
-            <p className="text-muted-foreground">
-              Welcome back, {userData?.name || 'Student'}!
-            </p>
+            <div className="space-y-1">
+              <p className="text-muted-foreground">
+                Welcome back, {userData?.name || 'Student'}!
+              </p>
+              {currentUsername && (
+                <p className="text-sm text-primary">
+                  @{currentUsername}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -220,6 +262,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </p>
         </div>
       </div>
+      
+      {/* Username Modal */}
+      <UsernameModal
+        isOpen={showUsernameModal}
+        onClose={() => setShowUsernameModal(false)}
+        onUsernameSet={(username) => setCurrentUsername(username)}
+      />
     </div>
   );
 };
