@@ -260,9 +260,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           <p className="text-xs text-muted-foreground">
             Made by programmer_deepak
           </p>
-          <p className="text-xs text-muted-foreground">
-           NOTE- Username and Leaderboard Feature are in Development. It May not Work
-          </p>
         </div>
       </div>
       
