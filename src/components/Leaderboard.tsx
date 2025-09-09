@@ -59,7 +59,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       if (error) throw error;
 
       toast({
-        title: "Sync Successful!",
+        title: "Update Successful!",
         description: "Your study time has been updated on the leaderboard.",
       });
 
@@ -67,8 +67,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       await fetchLeaderboard();
     } catch (error) {
       toast({
-        title: "Sync Failed",
-        description: "Failed to sync your study time. Please try again.",
+        title: "Update Failed",
+        description: "Failed to update your study time. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -147,7 +147,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
             className="flex items-center gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Syncing...' : 'Sync'}
+            {syncing ? 'Updating...' : 'Update'}
           </TimerButton>
         </div>
 
