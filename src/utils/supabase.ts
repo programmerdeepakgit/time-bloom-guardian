@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// These will be provided by the Supabase integration
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Only create client if both URL and key are available
+export const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export interface LeaderboardEntry {
   id: string;
@@ -17,6 +19,11 @@ export interface LeaderboardEntry {
 export const supabaseUtils = {
   // Create user in database
   createUser: async (userData: any) => {
+    if (!supabase) {
+      console.warn('Supabase not configured - user data saved locally only');
+      return { data: null, error: null };
+    }
+    
     const { data, error } = await supabase
       .from('users')
       .insert([{
@@ -39,6 +46,10 @@ export const supabaseUtils = {
 
   // Update username
   updateUsername: async (accessKey: string, username: string) => {
+    if (!supabase) {
+      return { data: null, error: new Error('Supabase not configured') };
+    }
+    
     const { data, error } = await supabase
       .from('users')
       .update({ username })
@@ -51,6 +62,10 @@ export const supabaseUtils = {
 
   // Update total study time
   updateStudyTime: async (accessKey: string, totalTime: number) => {
+    if (!supabase) {
+      return { data: null, error: new Error('Supabase not configured') };
+    }
+    
     const { data, error } = await supabase
       .from('users')
       .update({ 
@@ -66,6 +81,10 @@ export const supabaseUtils = {
 
   // Get leaderboard data
   getLeaderboard: async (): Promise<{ data: LeaderboardEntry[] | null, error: any }> => {
+    if (!supabase) {
+      return { data: [], error: new Error('Supabase not configured') };
+    }
+    
     const { data, error } = await supabase
       .from('users')
       .select('id, username, total_study_time, name, class, updated_at')
@@ -78,6 +97,10 @@ export const supabaseUtils = {
 
   // Check if username exists
   checkUsernameExists: async (username: string) => {
+    if (!supabase) {
+      return { exists: false, error: new Error('Supabase not configured') };
+    }
+    
     const { data, error } = await supabase
       .from('users')
       .select('username')
@@ -89,6 +112,10 @@ export const supabaseUtils = {
 
   // Get user by access key
   getUserByAccessKey: async (accessKey: string) => {
+    if (!supabase) {
+      return { data: null, error: new Error('Supabase not configured') };
+    }
+    
     const { data, error } = await supabase
       .from('users')
       .select('*')
