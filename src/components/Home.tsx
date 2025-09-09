@@ -260,8 +260,44 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           <p className="text-xs text-muted-foreground">
             Made by programmer_deepak
           </p>
+          <p className="text-xs text-muted-foreground">
+           NOTE- Username and Leaderboard Feature are in Development. It May not Work
+          </p>
         </div>
       </div>
+
+
+      // ... (existing imports)
+
+// Import the useToast hook if it's not already imported
+import { useToast } from '@/hooks/use-toast'; 
+
+// ... (rest of the component code)
+
+const Home: React.FC<HomeProps> = ({ onNavigate }) => {
+  // ... (existing state variables)
+
+  // Initialize the toast hook
+  const { toast } = useToast();
+
+  React.useEffect(() => {
+    if (userData?.username) {
+      setCurrentUsername(userData.username);
+    }
+  }, [userData]);
+
+  // This useEffect will run only once when the page loads
+  // to show the welcome toast.
+  React.useEffect(() => {
+    toast({
+      title: 'Welcome to JEE TIMER!',
+      description: 'Username & Leaderboard Features are Under Development Maybe Problems Occurs Use this After 48 Hours ',
+      variant: 'default',
+      duration: 5000,
+    });
+  }, []); // The empty dependency array `[]` makes it run once
+
+  // ... (rest of the Home component code)
       
       {/* Username Modal */}
       <UsernameModal
