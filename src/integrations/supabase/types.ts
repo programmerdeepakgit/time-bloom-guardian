@@ -17,12 +17,14 @@ export type Database = {
       users: {
         Row: {
           access_key: string
+          auth_user_id: string | null
           city: string
           class: string
           created_at: string | null
           email: string
           id: string
           name: string
+          password_last_updated: string | null
           phone: string
           state: string
           total_study_time: number | null
@@ -31,12 +33,14 @@ export type Database = {
         }
         Insert: {
           access_key: string
+          auth_user_id?: string | null
           city: string
           class: string
           created_at?: string | null
           email: string
           id?: string
           name: string
+          password_last_updated?: string | null
           phone: string
           state: string
           total_study_time?: number | null
@@ -45,12 +49,14 @@ export type Database = {
         }
         Update: {
           access_key?: string
+          auth_user_id?: string | null
           city?: string
           class?: string
           created_at?: string | null
           email?: string
           id?: string
           name?: string
+          password_last_updated?: string | null
           phone?: string
           state?: string
           total_study_time?: number | null

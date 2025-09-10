@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { TimerButton } from '@/components/ui/timer-button';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { storageUtils } from '@/utils/storage';
 import { formatTime } from '@/utils/timer';
-import { useToast } from '@/hooks/use-toast';
 import { 
   Trophy, 
   Medal, 
@@ -15,6 +14,7 @@ import {
   TrendingUp,
   Users
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface LeaderboardEntry {
   id: string;
@@ -30,11 +30,36 @@ interface LeaderboardProps {
 }
 
 const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const userData = storageUtils.getUserData();
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  // Fetch user profile
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      if (error) throw error;
+      setUserProfile(data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   const fetchLeaderboard = async () => {
     setLoading(true);
@@ -60,15 +85,17 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
   };
 
   const syncStudyTime = async () => {
-    if (!userData?.key) return;
+    if (!user || !userProfile) return;
     
     setSyncing(true);
     try {
-      // Calculate total study time from local records
-      const selfStudyRecords = storageUtils.getRecordsByType('self-study');
-      const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
-      const totalTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0) +
-                       lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
+      // Get study records from local storage
+      const selfStudyRecords = JSON.parse(localStorage.getItem('jee-timer-self-study-records') || '[]');
+      const lectureStudyRecords = JSON.parse(localStorage.getItem('jee-timer-lecture-study-records') || '[]');
+      
+      // Calculate total time
+      const totalTime = selfStudyRecords.reduce((sum: number, record: any) => sum + record.duration, 0) +
+                       lectureStudyRecords.reduce((sum: number, record: any) => sum + record.duration, 0);
 
       const { error } = await supabase
         .from('users')
@@ -76,9 +103,16 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
           total_study_time: totalTime,
           updated_at: new Date().toISOString()
         })
-        .eq('access_key', userData.key);
+        .eq('auth_user_id', user.id);
       
       if (error) throw error;
+
+      // Update user profile state
+      setUserProfile(prev => ({
+        ...prev,
+        total_study_time: totalTime,
+        updated_at: new Date().toISOString()
+      }));
 
       toast({
         title: "Update Successful!",
@@ -199,9 +233,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
           <div className="space-y-3">
             {leaderboardData.map((user, index) => {
               const rank = index + 1;
-              const isCurrentUser = userData?.key && leaderboardData.find(u => 
-                u.username === userData.name // This would need to be updated to match by access key
-              );
+              const isCurrentUser = user && userProfile && user.id === userProfile.auth_user_id;
               
               return (
                 <Card

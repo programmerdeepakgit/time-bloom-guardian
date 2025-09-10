@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { TimerButton } from '@/components/ui/timer-button';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { storageUtils } from '@/utils/storage';
 import { formatTime } from '@/utils/timer';
 import { 
@@ -12,45 +14,72 @@ import {
   TrendingUp,
   Trophy,
   User,
-  Settings
+  Settings,
+  LogOut
 } from 'lucide-react';
-import UsernameModal from './UsernameModal';
+import ProfileSettings from './ProfileSettings';
 
 interface HomeProps {
   onNavigate: (page: string, studyType?: 'self-study' | 'lecture-study') => void;
 }
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
-  const [showUsernameModal, setShowUsernameModal] = React.useState(false);
-  const [currentUsername, setCurrentUsername] = React.useState<string | null>(null);
-  const userData = storageUtils.getUserData();
-  const selfStudyRecords = storageUtils.getRecordsByType('self-study');
-  const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
+  const { user, signOut } = useAuth();
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [studyStats, setStudyStats] = useState({
+    selfStudy: { sessions: 0, totalTime: 0 },
+    lectureStudy: { sessions: 0, totalTime: 0 }
+  });
 
-  React.useEffect(() => {
-    if (userData?.username) {
-      setCurrentUsername(userData.username);
+  // Fetch user profile data from database
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+      calculateStudyStats();
     }
-  }, [userData]);
+  }, [user]);
 
-  const getSelfStudyStats = () => {
-    const totalTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0);
-    return {
-      sessions: selfStudyRecords.length,
-      totalTime,
-    };
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+      
+      setUserProfile(data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
   };
 
-  const getLectureStudyStats = () => {
-    const totalTime = lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
-    return {
-      sessions: lectureStudyRecords.length,
-      totalTime,
-    };
+  const calculateStudyStats = () => {
+    const selfStudyRecords = storageUtils.getRecordsByType('self-study');
+    const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
+    
+    setStudyStats({
+      selfStudy: {
+        sessions: selfStudyRecords.length,
+        totalTime: selfStudyRecords.reduce((sum, record) => sum + record.duration, 0)
+      },
+      lectureStudy: {
+        sessions: lectureStudyRecords.length,
+        totalTime: lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0)
+      }
+    });
   };
 
-  const selfStats = getSelfStudyStats();
-  const lectureStats = getLectureStudyStats();
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   const menuItems = [
     // Self Study Options
@@ -63,7 +92,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     },
     {
       title: 'Self Study Records',
-      description: `${selfStats.sessions} sessions • ${formatTime(selfStats.totalTime)}`,
+      description: `${studyStats.selfStudy.sessions} sessions • ${formatTime(studyStats.selfStudy.totalTime)}`,
       icon: BookOpen,
       color: 'primary',
       action: () => onNavigate('records', 'self-study'),
@@ -85,7 +114,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     },
     {
       title: 'Lecture Study Records',
-      description: `${lectureStats.sessions} sessions • ${formatTime(lectureStats.totalTime)}`,
+      description: `${studyStats.lectureStudy.sessions} sessions • ${formatTime(studyStats.lectureStudy.totalTime)}`,
       icon: BookOpen,
       color: 'primary',
       action: () => onNavigate('records', 'lecture-study'),
@@ -109,22 +138,34 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               <TimerButton
                 variant="secondary"
                 size="sm"
-                onClick={() => setShowUsernameModal(true)}
+                onClick={() => setShowProfileSettings(true)}
                 className="flex items-center gap-2"
               >
                 <User className="w-4 h-4" />
-                {currentUsername ? 'Change Username' : 'Set Username'}
+                {userProfile?.username ? 'Profile Settings' : 'Set Username'}
               </TimerButton>
             </div>
             
-            <TimerButton
-              variant="secondary"
-              onClick={() => onNavigate('leaderboard')}
-              className="flex items-center gap-2"
-            >
-              <Trophy className="w-4 h-4" />
-              Leaderboard
-            </TimerButton>
+            <div className="flex items-center gap-2">
+              <TimerButton
+                variant="secondary"
+                onClick={() => onNavigate('leaderboard')}
+                className="flex items-center gap-2"
+              >
+                <Trophy className="w-4 h-4" />
+                Leaderboard
+              </TimerButton>
+              
+              <TimerButton
+                variant="stop"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </TimerButton>
+            </div>
           </div>
           
           <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
@@ -134,11 +175,11 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             <h1 className="text-3xl font-bold text-primary mb-2">JEE TIMER</h1>
             <div className="space-y-1">
               <p className="text-muted-foreground">
-                Welcome back, {userData?.name || 'Student'}!
+                Welcome back, {userProfile?.name || user?.email || 'Student'}!
               </p>
-              {currentUsername && (
+              {userProfile?.username && (
                 <p className="text-sm text-primary">
-                  @{currentUsername}
+                  @{userProfile.username}
                 </p>
               )}
             </div>
@@ -155,7 +196,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               <div>
                 <p className="text-sm text-muted-foreground">Total Study Time</p>
                 <p className="text-lg font-bold text-foreground">
-                  {formatTime(selfStats.totalTime + lectureStats.totalTime)}
+                  {formatTime(studyStats.selfStudy.totalTime + studyStats.lectureStudy.totalTime)}
                 </p>
               </div>
             </div>
@@ -169,7 +210,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               <div>
                 <p className="text-sm text-muted-foreground">Total Sessions</p>
                 <p className="text-lg font-bold text-foreground">
-                  {selfStats.sessions + lectureStats.sessions}
+                  {studyStats.selfStudy.sessions + studyStats.lectureStudy.sessions}
                 </p>
               </div>
             </div>
@@ -263,11 +304,10 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         </div>
       </div>
       
-      {/* Username Modal */}
-      <UsernameModal
-        isOpen={showUsernameModal}
-        onClose={() => setShowUsernameModal(false)}
-        onUsernameSet={(username) => setCurrentUsername(username)}
+      {/* Profile Settings Modal */}
+      <ProfileSettings
+        isOpen={showProfileSettings}
+        onClose={() => setShowProfileSettings(false)}
       />
     </div>
   );

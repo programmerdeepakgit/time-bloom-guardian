@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { storageUtils } from '@/utils/storage';
-import { UserData } from '@/types';
-import KeyAuth from '@/components/KeyAuth';
-import KeyGeneration from '@/components/KeyGeneration';
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import Login from '@/components/Login';
+import Signup from '@/components/Signup';
 import Home from '@/components/Home';
 import Timer from '@/components/Timer';
 import StudyRecords from '@/components/StudyRecords';
@@ -10,35 +9,17 @@ import PDFGenerator from '@/components/PDFGenerator';
 import Leaderboard from '@/components/Leaderboard';
 
 const Index = () => {
-  const [currentPage, setCurrentPage] = useState<string>('auth');
+  const { user, loading } = useAuth();
+  const [currentPage, setCurrentPage] = useState<string>('home');
   const [currentStudyType, setCurrentStudyType] = useState<'self-study' | 'lecture-study' | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-
-  useEffect(() => {
-    // Check if user is already authenticated
-    const userData = storageUtils.getUserData();
-    const appKey = storageUtils.getAppKey();
-    
-    if (userData && appKey && userData.isVerified) {
-      setIsAuthenticated(true);
-      setCurrentPage('home');
-    }
-  }, []);
-
-  const handleAuthenticated = () => {
-    setIsAuthenticated(true);
-    setCurrentPage('home');
-  };
 
   const handleCreateAccount = () => {
     setIsCreatingAccount(true);
   };
 
-  const handleKeyGenerated = (userData: UserData) => {
+  const handleBackToLogin = () => {
     setIsCreatingAccount(false);
-    setIsAuthenticated(true);
-    setCurrentPage('home');
   };
 
   const handleNavigate = (page: string, studyType?: 'self-study' | 'lecture-study') => {
@@ -53,17 +34,26 @@ const Index = () => {
     setCurrentStudyType(null);
   };
 
-  // Authentication flow
-  if (!isAuthenticated) {
-    if (isCreatingAccount) {
-      return <KeyGeneration onKeyGenerated={handleKeyGenerated} />;
-    }
+  // Show loading while checking authentication
+  if (loading) {
     return (
-      <KeyAuth
-        onAuthenticated={handleAuthenticated}
-        onCreateAccount={handleCreateAccount}
-      />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto animate-pulse">
+            <span className="text-lg">⏱️</span>
+          </div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
     );
+  }
+
+  // Authentication flow
+  if (!user) {
+    if (isCreatingAccount) {
+      return <Signup onBackToLogin={handleBackToLogin} />;
+    }
+    return <Login onCreateAccount={handleCreateAccount} />;
   }
 
   // Main app pages
