@@ -84,6 +84,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
     }
   };
 
+  // Completely comment out the syncStudyTime function
+  /*
   const syncStudyTime = async () => {
     if (!user || !userProfile) return;
     
@@ -131,6 +133,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       setSyncing(false);
     }
   };
+  */
 
   useEffect(() => {
     fetchLeaderboard();
@@ -195,6 +198,8 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
             <p className="text-sm text-muted-foreground">Top JEE Timer Users</p>
           </div>
           
+          {/* Completely comment out the update button */}
+          {/*
           <TimerButton
             variant="secondary"
             size="sm"
@@ -205,6 +210,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
             <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
             {syncing ? 'Updating...' : 'Update'}
           </TimerButton>
+          */}
         </div>
 
         {/* Stats Card */}
