@@ -19,7 +19,7 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
     isRunning: false,
     startTime: null,
     elapsedTime: 0,
-    currentSubject: 'physics',
+    currentSubject: 'all',
   });
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -93,7 +93,7 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
     });
   };
 
-  const handleSubjectChange = (subject: 'physics' | 'chemistry' | 'maths' | 'mixed') => {
+  const handleSubjectChange = (subject: string) => {
     setTimerState(prev => ({
       ...prev,
       currentSubject: subject,
@@ -147,9 +147,14 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All Subjects</SelectItem>
                 <SelectItem value="physics">Physics</SelectItem>
                 <SelectItem value="chemistry">Chemistry</SelectItem>
                 <SelectItem value="maths">Mathematics</SelectItem>
+                <SelectItem value="computer-science">Computer Science</SelectItem>
+                <SelectItem value="english">English</SelectItem>
+                <SelectItem value="hindi">Hindi</SelectItem>
+                <SelectItem value="social-studies">Social Studies</SelectItem>
                 <SelectItem value="mixed">Mixed</SelectItem>
               </SelectContent>
             </Select>
@@ -193,7 +198,13 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
         {/* Footer */}
         <div className="text-center pt-4">
           <p className="text-xs text-muted-foreground">
-            Made by programmer_deepak
+            Made by{' '}
+            <button
+              onClick={() => window.open('https://www.instagram.com/programmer_deepak/', '_blank')}
+              className="text-primary hover:underline cursor-pointer"
+            >
+              programmer_deepak
+            </button>
           </p>
         </div>
       </div>

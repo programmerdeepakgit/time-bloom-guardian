@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      feedback: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string | null
+          feedback_text: string
+          id: string
+          name: string | null
+          phone: string | null
+          rating: number | null
+          state: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          feedback_text: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          rating?: number | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          feedback_text?: string
+          id?: string
+          name?: string | null
+          phone?: string | null
+          rating?: number | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           access_key: string

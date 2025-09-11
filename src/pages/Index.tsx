@@ -7,12 +7,14 @@ import Timer from '@/components/Timer';
 import StudyRecords from '@/components/StudyRecords';
 import PDFGenerator from '@/components/PDFGenerator';
 import Leaderboard from '@/components/Leaderboard';
+import PublicLeaderboard from '@/components/PublicLeaderboard';
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [currentStudyType, setCurrentStudyType] = useState<'self-study' | 'lecture-study' | null>(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [showPublicLeaderboard, setShowPublicLeaderboard] = useState(false);
 
   const handleCreateAccount = () => {
     setIsCreatingAccount(true);
@@ -20,6 +22,14 @@ const Index = () => {
 
   const handleBackToLogin = () => {
     setIsCreatingAccount(false);
+  };
+
+  const handleShowPublicLeaderboard = () => {
+    setShowPublicLeaderboard(true);
+  };
+
+  const handleBackFromPublicLeaderboard = () => {
+    setShowPublicLeaderboard(false);
   };
 
   const handleNavigate = (page: string, studyType?: 'self-study' | 'lecture-study') => {
@@ -50,10 +60,13 @@ const Index = () => {
 
   // Authentication flow
   if (!user) {
+    if (showPublicLeaderboard) {
+      return <PublicLeaderboard onBack={handleBackFromPublicLeaderboard} />;
+    }
     if (isCreatingAccount) {
       return <Signup onBackToLogin={handleBackToLogin} />;
     }
-    return <Login onCreateAccount={handleCreateAccount} />;
+    return <Login onCreateAccount={handleCreateAccount} onShowLeaderboard={handleShowPublicLeaderboard} />;
   }
 
   // Main app pages

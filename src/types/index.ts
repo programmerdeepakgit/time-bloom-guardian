@@ -1,7 +1,7 @@
 export interface StudyRecord {
   id: string;
   type: 'self-study' | 'lecture-study';
-  subject: 'physics' | 'chemistry' | 'maths' | 'mixed';
+  subject: string;
   startTime: Date;
   endTime: Date;
   duration: number; // in seconds
@@ -25,5 +25,5 @@ export interface TimerState {
   isRunning: boolean;
   startTime: Date | null;
   elapsedTime: number; // in seconds
-  currentSubject: 'physics' | 'chemistry' | 'maths' | 'mixed';
+  currentSubject: string;
 }

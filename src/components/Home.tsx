@@ -15,9 +15,14 @@ import {
   Trophy,
   User,
   Settings,
-  LogOut
+  LogOut,
+  RefreshCw,
+  MessageSquare,
+  Instagram
 } from 'lucide-react';
 import ProfileSettings from './ProfileSettings';
+import Feedback from './Feedback';
+import { useToast } from '@/hooks/use-toast';
 
 interface HomeProps {
   onNavigate: (page: string, studyType?: 'self-study' | 'lecture-study') => void;
@@ -25,8 +30,11 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [syncing, setSyncing] = useState(false);
   const [studyStats, setStudyStats] = useState({
     selfStudy: { sessions: 0, totalTime: 0 },
     lectureStudy: { sessions: 0, totalTime: 0 }
@@ -79,6 +87,55 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
 
   const handleLogout = async () => {
     await signOut();
+  };
+
+  const syncStudyTime = async () => {
+    if (!user || !userProfile) return;
+    
+    setSyncing(true);
+    try {
+      // Get study records from local storage
+      const selfStudyRecords = storageUtils.getRecordsByType('self-study');
+      const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
+      
+      // Calculate total time
+      const totalTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0) +
+                       lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
+
+      const { error } = await supabase
+        .from('users')
+        .update({ 
+          total_study_time: totalTime,
+          updated_at: new Date().toISOString()
+        })
+        .eq('auth_user_id', user.id);
+      
+      if (error) throw error;
+
+      // Update user profile state
+      setUserProfile(prev => ({
+        ...prev,
+        total_study_time: totalTime,
+        updated_at: new Date().toISOString()
+      }));
+
+      toast({
+        title: "Study Time Synced!",
+        description: "Your study time has been updated in the database.",
+      });
+
+      // Refresh stats
+      calculateStudyStats();
+    } catch (error) {
+      console.error('Error syncing study time:', error);
+      toast({
+        title: "Sync Failed",
+        description: "Failed to sync your study time. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const menuItems = [
@@ -148,12 +205,45 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             
             <div className="flex items-center gap-2">
               <TimerButton
+                variant="primary"
+                size="sm"
+                onClick={syncStudyTime}
+                disabled={syncing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'Syncing...' : 'Sync Study Time'}
+              </TimerButton>
+              
+              <TimerButton
                 variant="secondary"
                 onClick={() => onNavigate('leaderboard')}
                 className="flex items-center gap-2"
               >
                 <Trophy className="w-4 h-4" />
                 Leaderboard
+              </TimerButton>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <TimerButton
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowFeedback(true)}
+                className="flex items-center gap-2"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Feedback
+              </TimerButton>
+              
+              <TimerButton
+                variant="secondary"
+                size="sm"
+                onClick={() => window.open('https://www.instagram.com/programmer_deepak/', '_blank')}
+                className="flex items-center gap-2"
+              >
+                <Instagram className="w-4 h-4" />
+                Contact
               </TimerButton>
               
               <TimerButton
@@ -299,7 +389,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         {/* Footer */}
         <div className="text-center pt-4">
           <p className="text-xs text-muted-foreground">
-            Made by programmer_deepak
+            Made by{' '}
+            <button
+              onClick={() => window.open('https://www.instagram.com/programmer_deepak/', '_blank')}
+              className="text-primary hover:underline cursor-pointer"
+            >
+              programmer_deepak
+            </button>
           </p>
         </div>
       </div>
@@ -308,6 +404,12 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       <ProfileSettings
         isOpen={showProfileSettings}
         onClose={() => setShowProfileSettings(false)}
+      />
+      
+      {/* Feedback Modal */}
+      <Feedback
+        isOpen={showFeedback}
+        onClose={() => setShowFeedback(false)}
       />
     </div>
   );

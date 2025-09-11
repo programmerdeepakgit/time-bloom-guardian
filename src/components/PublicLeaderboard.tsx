@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { TimerButton } from '@/components/ui/timer-button';
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { formatTime } from '@/utils/timer';
 import { 
@@ -12,7 +11,8 @@ import {
   ArrowLeft, 
   Crown,
   TrendingUp,
-  Users
+  Users,
+  Instagram
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,41 +25,14 @@ interface LeaderboardEntry {
   updated_at: string;
 }
 
-interface LeaderboardProps {
+interface PublicLeaderboardProps {
   onBack: () => void;
 }
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
-  const { user } = useAuth();
+const PublicLeaderboard: React.FC<PublicLeaderboardProps> = ({ onBack }) => {
   const { toast } = useToast();
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
-
-  // Fetch user profile
-  useEffect(() => {
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
-
-  const fetchUserProfile = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('auth_user_id', user.id)
-        .single();
-
-      if (error) throw error;
-      setUserProfile(data);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
 
   const fetchLeaderboard = async () => {
     setLoading(true);
@@ -68,6 +41,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
         .from('users')
         .select('id, username, total_study_time, name, class, updated_at')
         .not('username', 'is', null)
+        .gt('total_study_time', 0)
         .order('total_study_time', { ascending: false })
         .limit(50);
       
@@ -81,54 +55,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const syncStudyTime = async () => {
-    if (!user || !userProfile) return;
-    
-    setSyncing(true);
-    try {
-      // Get study records from local storage
-      const selfStudyRecords = JSON.parse(localStorage.getItem('jee-timer-self-study-records') || '[]');
-      const lectureStudyRecords = JSON.parse(localStorage.getItem('jee-timer-lecture-study-records') || '[]');
-      
-      // Calculate total time
-      const totalTime = selfStudyRecords.reduce((sum: number, record: any) => sum + record.duration, 0) +
-                       lectureStudyRecords.reduce((sum: number, record: any) => sum + record.duration, 0);
-
-      const { error } = await supabase
-        .from('users')
-        .update({ 
-          total_study_time: totalTime,
-          updated_at: new Date().toISOString()
-        })
-        .eq('auth_user_id', user.id);
-      
-      if (error) throw error;
-
-      // Update user profile state
-      setUserProfile(prev => ({
-        ...prev,
-        total_study_time: totalTime,
-        updated_at: new Date().toISOString()
-      }));
-
-      toast({
-        title: "Update Successful!",
-        description: "Your study time has been updated on the leaderboard.",
-      });
-
-      // Refresh leaderboard after sync
-      await fetchLeaderboard();
-    } catch (error) {
-      toast({
-        title: "Update Failed",
-        description: "Failed to update your study time. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSyncing(false);
     }
   };
 
@@ -198,12 +124,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
           <TimerButton
             variant="secondary"
             size="sm"
-            onClick={syncStudyTime}
-            disabled={syncing}
+            onClick={fetchLeaderboard}
             className="flex items-center gap-2"
           >
-            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Updating...' : 'Update'}
+            <RefreshCw className="w-4 h-4" />
+            Refresh
           </TimerButton>
         </div>
 
@@ -233,14 +158,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
           <div className="space-y-3">
             {leaderboardData.map((user, index) => {
               const rank = index + 1;
-              const isCurrentUser = user && userProfile && user.id === userProfile.auth_user_id;
               
               return (
                 <Card
                   key={user.id}
-                  className={`${getRankColor(rank)} ${
-                    isCurrentUser ? 'ring-2 ring-primary/50' : ''
-                  } p-4 transition-all hover:scale-[1.01]`}
+                  className={`${getRankColor(rank)} p-4 transition-all hover:scale-[1.01]`}
                 >
                   <div className="flex items-center gap-4">
                     {/* Rank & Icon */}
@@ -255,11 +177,6 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-foreground">{user.username}</h3>
-                        {isCurrentUser && (
-                          <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full">
-                            You
-                          </span>
-                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {user.name} • {user.class}
@@ -302,4 +219,4 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
   );
 };
 
-export default Leaderboard;
+export default PublicLeaderboard;
