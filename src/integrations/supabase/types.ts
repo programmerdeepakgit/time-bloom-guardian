@@ -112,33 +112,7 @@ export type Database = {
       }
     }
     Views: {
-      leaderboard: {
-        Row: {
-          class: string | null
-          id: string | null
-          name: string | null
-          total_study_time: number | null
-          updated_at: string | null
-          username: string | null
-        }
-        Insert: {
-          class?: string | null
-          id?: string | null
-          name?: string | null
-          total_study_time?: number | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Update: {
-          class?: string | null
-          id?: string | null
-          name?: string | null
-          total_study_time?: number | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       get_leaderboard: {

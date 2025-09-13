@@ -37,13 +37,7 @@ const PublicLeaderboard: React.FC<PublicLeaderboardProps> = ({ onBack }) => {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, username, total_study_time, name, class, updated_at')
-        .not('username', 'is', null)
-        .gt('total_study_time', 0)
-        .order('total_study_time', { ascending: false })
-        .limit(50);
+      const { data, error } = await supabase.rpc('get_leaderboard');
       
       if (error) throw error;
       setLeaderboardData(data || []);
