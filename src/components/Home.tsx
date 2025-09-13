@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { storageUtils } from '@/utils/storage';
 import { formatTime } from '@/utils/timer';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Timer, 
   BookOpen, 
@@ -18,7 +19,9 @@ import {
   LogOut,
   RefreshCw,
   MessageSquare,
-  Instagram
+  Instagram,
+  Menu,
+  X
 } from 'lucide-react';
 import ProfileSettings from './ProfileSettings';
 import Feedback from './Feedback';
@@ -31,8 +34,10 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [syncing, setSyncing] = useState(false);
   const [studyStats, setStudyStats] = useState({
@@ -191,72 +196,145 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TimerButton
-                variant="secondary"
-                size="sm"
-                onClick={() => setShowProfileSettings(true)}
-                className="flex items-center gap-2"
-              >
-                <User className="w-4 h-4" />
-                {userProfile?.username ? 'Profile Settings' : 'Set Username'}
-              </TimerButton>
-            </div>
+            {/* Desktop Navigation */}
+            {!isMobile && (
+              <>
+                <div className="flex items-center gap-2">
+                  <TimerButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowProfileSettings(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    {userProfile?.username ? 'Profile Settings' : 'Set Username'}
+                  </TimerButton>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <TimerButton
+                    variant="secondary"
+                    onClick={() => onNavigate('leaderboard')}
+                    className="flex items-center gap-2"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    Leaderboard
+                  </TimerButton>
+                  
+                  <TimerButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowFeedback(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Feedback
+                  </TimerButton>
+                  
+                  <TimerButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => window.open('https://www.instagram.com/programmer_deepak/', '_blank')}
+                    className="flex items-center gap-2"
+                  >
+                    <Instagram className="w-4 h-4" />
+                    Contact
+                  </TimerButton>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <TimerButton
+                    variant="stop"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </TimerButton>
+                </div>
+              </>
+            )}
             
-            <div className="flex items-center gap-2">
-              <TimerButton
-                variant="primary"
-                size="sm"
-                onClick={syncStudyTime}
-                disabled={syncing}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-                {syncing ? 'Syncing...' : 'Sync Study Time'}
-              </TimerButton>
-              
-              <TimerButton
-                variant="secondary"
-                onClick={() => onNavigate('leaderboard')}
-                className="flex items-center gap-2"
-              >
-                <Trophy className="w-4 h-4" />
-                Leaderboard
-              </TimerButton>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <TimerButton
-                variant="secondary"
-                size="sm"
-                onClick={() => setShowFeedback(true)}
-                className="flex items-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4" />
-                Feedback
-              </TimerButton>
-              
-              <TimerButton
-                variant="secondary"
-                size="sm"
-                onClick={() => window.open('https://www.instagram.com/programmer_deepak/', '_blank')}
-                className="flex items-center gap-2"
-              >
-                <Instagram className="w-4 h-4" />
-                Contact
-              </TimerButton>
-              
-              <TimerButton
-                variant="stop"
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </TimerButton>
-            </div>
+            {/* Mobile Navigation */}
+            {isMobile && (
+              <>
+                <div className="flex items-center gap-2">
+                  <TimerButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowProfileSettings(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                  </TimerButton>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <TimerButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                    className="flex items-center gap-2"
+                  >
+                    {showMobileMenu ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                  </TimerButton>
+                </div>
+              </>
+            )}
           </div>
+          
+          {/* Mobile Menu */}
+          {isMobile && showMobileMenu && (
+            <Card className="gradient-secondary p-4 mb-4">
+              <div className="space-y-3">
+                <TimerButton
+                  variant="secondary"
+                  onClick={() => {
+                    onNavigate('leaderboard');
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2"
+                >
+                  <Trophy className="w-4 h-4" />
+                  Leaderboard
+                </TimerButton>
+                
+                <TimerButton
+                  variant="secondary"
+                  onClick={() => {
+                    setShowFeedback(true);
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Feedback
+                </TimerButton>
+                
+                <TimerButton
+                  variant="secondary"
+                  onClick={() => {
+                    window.open('https://www.instagram.com/programmer_deepak/', '_blank');
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2"
+                >
+                  <Instagram className="w-4 h-4" />
+                  Contact Us
+                </TimerButton>
+                
+                <TimerButton
+                  variant="stop"
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </TimerButton>
+              </div>
+            </Card>
+          )}
           
           <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
             <GraduationCap className="w-8 h-8 text-primary" />
@@ -274,6 +352,19 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Sync Button */}
+        <div className="flex justify-center mb-6">
+          <TimerButton
+            variant="primary"
+            onClick={syncStudyTime}
+            disabled={syncing}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Syncing...' : 'Sync Study Time'}
+          </TimerButton>
         </div>
 
         {/* Quick Stats */}
@@ -317,7 +408,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               </div>
               <h2 className="text-xl font-semibold text-foreground">Self Study</h2>
             </div>
-            <div className="grid grid-cols-1 gap-3">
+            <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1'}`}>
               {menuItems.slice(0, 3).map((item, index) => {
                 const IconComponent = item.icon;
                 return (
@@ -355,7 +446,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               </div>
               <h2 className="text-xl font-semibold text-foreground">Lecture Study</h2>
             </div>
-            <div className="grid grid-cols-1 gap-3">
+            <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-1'}`}>
               {menuItems.slice(3, 6).map((item, index) => {
                 const IconComponent = item.icon;
                 return (

@@ -4,6 +4,7 @@ import { TimerButton } from '@/components/ui/timer-button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { formatTime } from '@/utils/timer';
+import { storageUtils } from '@/utils/storage';
 import { 
   Trophy, 
   Medal, 
@@ -12,7 +13,8 @@ import {
   ArrowLeft, 
   Crown,
   TrendingUp,
-  Users
+  Users,
+  Info
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -84,20 +86,18 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
     }
   };
 
-  // Completely comment out the syncStudyTime function
-  /*
   const syncStudyTime = async () => {
     if (!user || !userProfile) return;
     
     setSyncing(true);
     try {
       // Get study records from local storage
-      const selfStudyRecords = JSON.parse(localStorage.getItem('jee-timer-self-study-records') || '[]');
-      const lectureStudyRecords = JSON.parse(localStorage.getItem('jee-timer-lecture-study-records') || '[]');
+      const selfStudyRecords = storageUtils.getRecordsByType('self-study');
+      const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
       
       // Calculate total time
-      const totalTime = selfStudyRecords.reduce((sum: number, record: any) => sum + record.duration, 0) +
-                       lectureStudyRecords.reduce((sum: number, record: any) => sum + record.duration, 0);
+      const totalTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0) +
+                       lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
 
       const { error } = await supabase
         .from('users')
@@ -117,7 +117,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       }));
 
       toast({
-        title: "Update Successful!",
+        title: "Study Time Synced!",
         description: "Your study time has been updated on the leaderboard.",
       });
 
@@ -125,15 +125,14 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
       await fetchLeaderboard();
     } catch (error) {
       toast({
-        title: "Update Failed",
-        description: "Failed to update your study time. Please try again.",
+        title: "Sync Failed",
+        description: "Failed to sync your study time. Please try again.",
         variant: "destructive",
       });
     } finally {
       setSyncing(false);
     }
   };
-  */
 
   useEffect(() => {
     fetchLeaderboard();
@@ -198,20 +197,32 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
             <p className="text-sm text-muted-foreground">Top JEE Timer Users</p>
           </div>
           
-          {/* Completely comment out the update button */}
-          {/*
           <TimerButton
-            variant="secondary"
+            variant="primary"
             size="sm"
             onClick={syncStudyTime}
             disabled={syncing}
             className="flex items-center gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Updating...' : 'Update'}
+            {syncing ? 'Syncing...' : 'Sync Study Time'}
           </TimerButton>
-          */}
         </div>
+
+        {/* Info Card */}
+        <Card className="gradient-secondary p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-info/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Info className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground mb-1">Create Your Username</p>
+              <p className="text-xs text-muted-foreground">
+                Set your username from Profile Settings to appear on the leaderboard and compete with other students.
+              </p>
+            </div>
+          </div>
+        </Card>
 
         {/* Stats Card */}
         <Card className="gradient-secondary p-4">

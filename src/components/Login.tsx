@@ -44,16 +44,7 @@ const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => 
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <TimerButton
-              variant="secondary"
-              size="sm"
-              onClick={onShowLeaderboard}
-              className="flex items-center gap-2"
-            >
-              <Trophy className="w-4 h-4" />
-              Leaderboard
-            </TimerButton>
+          <div className="flex justify-end mb-4">
             <TimerButton
               variant="secondary"
               size="sm"
@@ -180,7 +171,7 @@ const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => 
         </Card>
 
         {/* Features Preview */}
-        <div className="grid grid-cols-2 gap-4 text-center">
+        <div className="grid grid-cols-3 gap-4 text-center">
           <div className="space-y-2">
             <div className="w-10 h-10 bg-success/20 rounded-lg flex items-center justify-center mx-auto">
               <span className="text-lg">⏱️</span>
@@ -192,6 +183,15 @@ const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => 
               <span className="text-lg">📊</span>
             </div>
             <p className="text-xs text-muted-foreground">Track Progress</p>
+          </div>
+          <div className="space-y-2">
+            <button 
+              onClick={onShowLeaderboard}
+              className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center mx-auto hover:bg-yellow-500/30 transition-colors"
+            >
+              <Trophy className="w-5 h-5 text-yellow-500" />
+            </button>
+            <p className="text-xs text-muted-foreground">Leaderboard</p>
           </div>
         </div>
 
