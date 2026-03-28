@@ -155,7 +155,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       // Update user profile state
       setUserProfile(prev => ({
         ...prev,
-        total_study_time: totalTime,
+        total_study_time: finalTotal,
         updated_at: new Date().toISOString()
       }));
 
