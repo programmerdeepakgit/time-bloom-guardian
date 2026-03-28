@@ -33,7 +33,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUserna
         .from('users')
         .select('username')
         .eq('username', usernameToCheck)
-        .single();
+        .maybeSingle();
       
       if (error && error.code !== 'PGRST116') throw error;
       setIsAvailable(!data);
