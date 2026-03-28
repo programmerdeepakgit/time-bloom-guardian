@@ -30,8 +30,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  const ensureUserRecord = async (authUser: User) => {
+    if (!authUser.id || !authUser.email) return;
+    const { data } = await supabase
+      .from('users')
+      .select('id')
+      .eq('auth_user_id', authUser.id)
+      .maybeSingle();
+    if (data) return;
+    const metadata = authUser.user_metadata ?? {};
+    await supabase.from('users').insert({
+      auth_user_id: authUser.id,
+      email: authUser.email,
+      name: metadata.name ?? '',
+      class: metadata.class ?? '',
+      state: metadata.state ?? '',
+      city: metadata.city ?? '',
+      phone: metadata.phone ?? '',
+      access_key: metadata.access_key ?? '',
+      username: null,
+      total_study_time: 0,
+    });
+  };
+
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -39,17 +61,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
         
         if (event === 'SIGNED_OUT') {
-          // Clear local storage on sign out
           localStorage.clear();
+        } else if (session?.user) {
+          setTimeout(() => ensureUserRecord(session.user), 0);
         }
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      if (session?.user) {
+        ensureUserRecord(session.user);
+      }
     });
 
     return () => subscription.unsubscribe();
