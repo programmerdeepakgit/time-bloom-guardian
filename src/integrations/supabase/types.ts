@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
@@ -116,7 +116,7 @@ export type Database = {
     }
     Functions: {
       get_leaderboard: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           class: string
           id: string
