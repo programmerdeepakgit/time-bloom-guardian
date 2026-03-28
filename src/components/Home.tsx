@@ -74,20 +74,44 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     }
   };
 
-  const calculateStudyStats = () => {
+  const calculateStudyStats = async () => {
     const selfStudyRecords = storageUtils.getRecordsByType('self-study');
     const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
     
-    setStudyStats({
-      selfStudy: {
-        sessions: selfStudyRecords.length,
-        totalTime: selfStudyRecords.reduce((sum, record) => sum + record.duration, 0)
-      },
-      lectureStudy: {
-        sessions: lectureStudyRecords.length,
-        totalTime: lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0)
-      }
-    });
+    const localSelfTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0);
+    const localLectureTime = lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
+    const localTotal = localSelfTime + localLectureTime;
+
+    // Fetch DB total to ensure we never lose synced time
+    let dbTotal = 0;
+    if (user) {
+      const { data } = await supabase
+        .from('users')
+        .select('total_study_time')
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
+      dbTotal = data?.total_study_time || 0;
+    }
+
+    // If DB has more time than local, distribute the extra proportionally
+    if (dbTotal > localTotal && localTotal === 0) {
+      // No local records - show DB total as self-study for display
+      setStudyStats({
+        selfStudy: { sessions: 0, totalTime: dbTotal },
+        lectureStudy: { sessions: 0, totalTime: 0 }
+      });
+    } else {
+      setStudyStats({
+        selfStudy: {
+          sessions: selfStudyRecords.length,
+          totalTime: localSelfTime
+        },
+        lectureStudy: {
+          sessions: lectureStudyRecords.length,
+          totalTime: localLectureTime
+        }
+      });
+    }
   };
 
   const handleLogout = async () => {
@@ -103,14 +127,25 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       const selfStudyRecords = storageUtils.getRecordsByType('self-study');
       const lectureStudyRecords = storageUtils.getRecordsByType('lecture-study');
       
-      // Calculate total time
-      const totalTime = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0) +
-                       lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
+      // Calculate local total time
+      const localTotal = selfStudyRecords.reduce((sum, record) => sum + record.duration, 0) +
+                        lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
+
+      // Get current DB total to preserve previously synced time
+      const { data: currentData } = await supabase
+        .from('users')
+        .select('total_study_time')
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
+      
+      const dbTotal = currentData?.total_study_time || 0;
+      // Use the higher value so we never lose time
+      const finalTotal = Math.max(localTotal, dbTotal);
 
       const { error } = await supabase
         .from('users')
         .update({ 
-          total_study_time: totalTime,
+          total_study_time: finalTotal,
           updated_at: new Date().toISOString()
         })
         .eq('auth_user_id', user.id);
@@ -120,7 +155,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       // Update user profile state
       setUserProfile(prev => ({
         ...prev,
-        total_study_time: totalTime,
+        total_study_time: finalTotal,
         updated_at: new Date().toISOString()
       }));
 

@@ -61,7 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
         
         if (event === 'SIGNED_OUT') {
-          localStorage.clear();
+          // Only clear auth-related data, preserve study records
+          localStorage.removeItem('jee_timer_user_data');
+          localStorage.removeItem('jee_timer_app_key');
         } else if (session?.user) {
           setTimeout(() => ensureUserRecord(session.user), 0);
         }
