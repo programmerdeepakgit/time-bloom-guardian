@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TimerButton } from '@/components/ui/timer-button';
 import { supabase } from '@/integrations/supabase/client';
-import { storageUtils } from '@/utils/storage';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { User, Check, X } from 'lucide-react';
 
@@ -15,6 +15,7 @@ interface UsernameModalProps {
 }
 
 const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUsernameSet }) => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUserna
         .eq('username', usernameToCheck)
         .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       setIsAvailable(!data);
     } catch (error) {
       setIsAvailable(null);
