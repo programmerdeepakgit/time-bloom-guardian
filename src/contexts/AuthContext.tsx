@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       toast({
         title: "Account Created!",
-        description: "Please check your email for verification link.",
+        description: "Your account has been created successfully. You can now log in.",
       });
     }
     
