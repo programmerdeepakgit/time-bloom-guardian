@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TimerButton } from '@/components/ui/timer-button';
 import { supabase } from '@/integrations/supabase/client';
-import { storageUtils } from '@/utils/storage';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { User, Check, X } from 'lucide-react';
 
@@ -15,6 +15,7 @@ interface UsernameModalProps {
 }
 
 const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUsernameSet }) => {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -33,9 +34,9 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUserna
         .from('users')
         .select('username')
         .eq('username', usernameToCheck)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       setIsAvailable(!data);
     } catch (error) {
       setIsAvailable(null);
@@ -79,8 +80,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUserna
       return;
     }
 
-    const userData = storageUtils.getUserData();
-    if (!userData?.key) {
+    if (!user) {
       toast({
         title: "Error",
         description: "User data not found. Please log in again.",
@@ -94,13 +94,9 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ isOpen, onClose, onUserna
       const { error } = await supabase
         .from('users')
         .update({ username })
-        .eq('access_key', userData.key);
+        .eq('auth_user_id', user.id);
       
       if (error) throw error;
-
-      // Update local storage
-      const updatedUserData = { ...userData, username };
-      storageUtils.saveUserData(updatedUserData);
 
       toast({
         title: "Username Set Successfully!",

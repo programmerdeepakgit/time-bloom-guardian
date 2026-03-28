@@ -41,10 +41,36 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ isOpen, onClose }) =>
         .from('users')
         .select('*')
         .eq('auth_user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
+      if (!data) {
+        // Auto-create user record if missing
+        const metadata = user.user_metadata ?? {};
+        const newRecord = {
+          auth_user_id: user.id,
+          email: user.email ?? '',
+          name: metadata.name ?? '',
+          class: metadata.class ?? '',
+          state: metadata.state ?? '',
+          city: metadata.city ?? '',
+          phone: metadata.phone ?? '',
+          access_key: metadata.access_key ?? '',
+          username: null,
+          total_study_time: 0,
+        };
+        const { data: inserted, error: insertErr } = await supabase
+          .from('users')
+          .insert(newRecord)
+          .select()
+          .single();
+        if (insertErr) throw insertErr;
+        setUserProfile(inserted);
+        setFormData(prev => ({ ...prev, username: '' }));
+        return;
+      }
+
       setUserProfile(data);
       setFormData(prev => ({
         ...prev,
@@ -66,8 +92,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ isOpen, onClose }) =>
       .from('users')
       .select('username')
       .eq('username', username)
-      .neq('auth_user_id', user?.id)
-      .single();
+      .neq('auth_user_id', user?.id ?? '')
+      .maybeSingle();
     
     return !!data;
   };
