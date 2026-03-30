@@ -17,6 +17,7 @@ interface TimerProps {
 
 const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [timerState, setTimerState] = useState<TimerState>({
     isRunning: false,
     startTime: null,
