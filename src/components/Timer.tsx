@@ -7,6 +7,8 @@ import { storageUtils } from '@/utils/storage';
 import { StudyRecord, TimerState } from '@/types';
 import { Play, Pause, Square, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TimerProps {
   studyType: 'self-study' | 'lecture-study';
@@ -15,6 +17,7 @@ interface TimerProps {
 
 const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [timerState, setTimerState] = useState<TimerState>({
     isRunning: false,
     startTime: null,
@@ -79,6 +82,30 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
     };
 
     storageUtils.saveStudyRecord(record);
+
+    // Auto-sync to database
+    if (user) {
+      const allRecords = storageUtils.getStudyRecords();
+      const localTotal = allRecords.reduce((sum, r) => sum + r.duration, 0) + duration;
+      
+      supabase
+        .from('users')
+        .select('total_study_time')
+        .eq('auth_user_id', user.id)
+        .single()
+        .then(({ data }) => {
+          const dbTotal = data?.total_study_time || 0;
+          const finalTotal = Math.max(localTotal, dbTotal + duration);
+          
+          supabase
+            .from('users')
+            .update({ total_study_time: finalTotal, updated_at: new Date().toISOString() })
+            .eq('auth_user_id', user.id)
+            .then(() => {
+              console.log('Study time synced:', finalTotal);
+            });
+        });
+    }
 
     setTimerState({
       isRunning: false,
