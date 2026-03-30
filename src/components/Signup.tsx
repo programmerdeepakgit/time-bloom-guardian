@@ -140,6 +140,7 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
     const key = generateAccessKey();
     const userData = {
       ...formData,
+      username: formData.username.toLowerCase(),
       key,
       registrationDate: new Date().toISOString(),
     };
@@ -156,6 +157,15 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Debounced username availability check
+    if (field === 'username') {
+      setUsernameAvailable(null);
+      if (usernameDebounceRef.current) clearTimeout(usernameDebounceRef.current);
+      usernameDebounceRef.current = setTimeout(() => {
+        checkUsernameAvailability(value);
+      }, 500);
+    }
   };
 
   return (
