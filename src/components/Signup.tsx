@@ -42,13 +42,46 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
     await signInWithGoogle();
   };
 
+  const checkUsernameAvailability = async (username: string) => {
+    if (!username || username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+    setCheckingUsername(true);
+    const { data } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username.toLowerCase())
+      .maybeSingle();
+    setUsernameAvailable(!data);
+    setCheckingUsername(false);
+  };
+
   const validateForm = () => {
-    const { name, class: className, state, city, phone, email, password, confirmPassword } = formData;
+    const { name, username, class: className, state, city, phone, email, password, confirmPassword } = formData;
     
     if (!name.trim() || !className.trim() || !state.trim() || !city.trim()) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!username.trim() || username.length < 3) {
+      toast({
+        title: "Invalid Username",
+        description: "Username must be at least 3 characters.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (usernameAvailable === false) {
+      toast({
+        title: "Username Taken",
+        description: "Please choose a different username.",
         variant: "destructive",
       });
       return false;
