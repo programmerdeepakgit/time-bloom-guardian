@@ -24,7 +24,7 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const captchaRef = useRef<HCaptcha>(null);
-  const usernameDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const usernameDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     username: '',
