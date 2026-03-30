@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TimerButton } from '@/components/ui/timer-button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Key, Mail, User, Phone, MapPin, GraduationCap, Eye, EyeOff, Instagram, CheckCircle, AtSign, Loader2 } from 'lucide-react';
+import { Key, Mail, User, Phone, MapPin, GraduationCap, Eye, EyeOff, Instagram, CheckCircle, AtSign, Loader2, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
