@@ -242,6 +242,33 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
 
                 <div className="space-y-2">
                   <Label>
+                    <AtSign className="w-4 h-4 inline mr-2" />
+                    Username
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Choose a unique username"
+                      value={formData.username}
+                      onChange={(e) => handleInputChange('username', e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                      required
+                      minLength={3}
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {checkingUsername && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                      {!checkingUsername && usernameAvailable === true && <CheckCircle className="w-4 h-4 text-success" />}
+                      {!checkingUsername && usernameAvailable === false && <X className="w-4 h-4 text-destructive" />}
+                    </div>
+                  </div>
+                  {usernameAvailable === false && (
+                    <p className="text-xs text-destructive">Username is already taken</p>
+                  )}
+                  {usernameAvailable === true && (
+                    <p className="text-xs text-success">Username is available!</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>
                     <GraduationCap className="w-4 h-4 inline mr-2" />
                     Class
                   </Label>
