@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       city: metadata.city ?? '',
       phone: metadata.phone ?? '',
       access_key: metadata.access_key ?? '',
-      username: null,
+      username: metadata.username ?? null,
       total_study_time: 0,
     });
   };

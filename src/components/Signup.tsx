@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TimerButton } from '@/components/ui/timer-button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Key, Mail, User, Phone, MapPin, GraduationCap, Eye, EyeOff, Instagram, CheckCircle } from 'lucide-react';
+import { Key, Mail, User, Phone, MapPin, GraduationCap, Eye, EyeOff, Instagram, CheckCircle, AtSign, Loader2, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
@@ -20,9 +21,13 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const captchaRef = useRef<HCaptcha>(null);
+  const usernameDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [formData, setFormData] = useState({
     name: '',
+    username: '',
     class: '',
     state: '',
     city: '',
@@ -37,13 +42,46 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
     await signInWithGoogle();
   };
 
+  const checkUsernameAvailability = async (username: string) => {
+    if (!username || username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+    setCheckingUsername(true);
+    const { data } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username.toLowerCase())
+      .maybeSingle();
+    setUsernameAvailable(!data);
+    setCheckingUsername(false);
+  };
+
   const validateForm = () => {
-    const { name, class: className, state, city, phone, email, password, confirmPassword } = formData;
+    const { name, username, class: className, state, city, phone, email, password, confirmPassword } = formData;
     
     if (!name.trim() || !className.trim() || !state.trim() || !city.trim()) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!username.trim() || username.length < 3) {
+      toast({
+        title: "Invalid Username",
+        description: "Username must be at least 3 characters.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (usernameAvailable === false) {
+      toast({
+        title: "Username Taken",
+        description: "Please choose a different username.",
         variant: "destructive",
       });
       return false;
@@ -102,6 +140,7 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
     const key = generateAccessKey();
     const userData = {
       ...formData,
+      username: formData.username.toLowerCase(),
       key,
       registrationDate: new Date().toISOString(),
     };
@@ -118,6 +157,15 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Debounced username availability check
+    if (field === 'username') {
+      setUsernameAvailable(null);
+      if (usernameDebounceRef.current) clearTimeout(usernameDebounceRef.current);
+      usernameDebounceRef.current = setTimeout(() => {
+        checkUsernameAvailability(value);
+      }, 500);
+    }
   };
 
   return (
@@ -190,6 +238,33 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     required
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>
+                    <AtSign className="w-4 h-4 inline mr-2" />
+                    Username
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Choose a unique username"
+                      value={formData.username}
+                      onChange={(e) => handleInputChange('username', e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                      required
+                      minLength={3}
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {checkingUsername && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+                      {!checkingUsername && usernameAvailable === true && <CheckCircle className="w-4 h-4 text-success" />}
+                      {!checkingUsername && usernameAvailable === false && <X className="w-4 h-4 text-destructive" />}
+                    </div>
+                  </div>
+                  {usernameAvailable === false && (
+                    <p className="text-xs text-destructive">Username is already taken</p>
+                  )}
+                  {usernameAvailable === true && (
+                    <p className="text-xs text-success">Username is available!</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
