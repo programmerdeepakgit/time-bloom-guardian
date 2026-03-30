@@ -83,6 +83,30 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
 
     storageUtils.saveStudyRecord(record);
 
+    // Auto-sync to database
+    if (user) {
+      const allRecords = storageUtils.getStudyRecords();
+      const localTotal = allRecords.reduce((sum, r) => sum + r.duration, 0) + duration;
+      
+      supabase
+        .from('users')
+        .select('total_study_time')
+        .eq('auth_user_id', user.id)
+        .single()
+        .then(({ data }) => {
+          const dbTotal = data?.total_study_time || 0;
+          const finalTotal = Math.max(localTotal, dbTotal + duration);
+          
+          supabase
+            .from('users')
+            .update({ total_study_time: finalTotal, updated_at: new Date().toISOString() })
+            .eq('auth_user_id', user.id)
+            .then(() => {
+              console.log('Study time synced:', finalTotal);
+            });
+        });
+    }
+
     setTimerState({
       isRunning: false,
       startTime: null,
