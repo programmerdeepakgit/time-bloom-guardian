@@ -21,9 +21,13 @@ const Signup: React.FC<SignupProps> = ({ onBackToLogin }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const captchaRef = useRef<HCaptcha>(null);
+  const usernameDebounceRef = useRef<NodeJS.Timeout | null>(null);
   const [formData, setFormData] = useState({
     name: '',
+    username: '',
     class: '',
     state: '',
     city: '',
