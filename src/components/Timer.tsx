@@ -7,6 +7,8 @@ import { storageUtils } from '@/utils/storage';
 import { StudyRecord, TimerState } from '@/types';
 import { Play, Pause, Square, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TimerProps {
   studyType: 'self-study' | 'lecture-study';
