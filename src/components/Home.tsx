@@ -82,7 +82,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     const localLectureTime = lectureStudyRecords.reduce((sum, record) => sum + record.duration, 0);
     const localTotal = localSelfTime + localLectureTime;
 
-    // Fetch DB total to ensure we never lose synced time
+    // Always fetch DB total as the source of truth
     let dbTotal = 0;
     if (user) {
       const { data } = await supabase
@@ -93,23 +93,32 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       dbTotal = data?.total_study_time || 0;
     }
 
-    // If DB has more time than local, distribute the extra proportionally
-    if (dbTotal > localTotal && localTotal === 0) {
-      // No local records - show DB total as self-study for display
+    // The displayed total should be the max of DB and local
+    const effectiveTotal = Math.max(localTotal, dbTotal);
+
+    if (localTotal === 0 && dbTotal > 0) {
+      // No local records — show DB total (source of truth)
       setStudyStats({
         selfStudy: { sessions: 0, totalTime: dbTotal },
         lectureStudy: { sessions: 0, totalTime: 0 }
       });
-    } else {
+    } else if (localTotal > 0) {
+      // We have local records — show local breakdown but ensure total >= DB
+      const extraFromDb = Math.max(0, dbTotal - localTotal);
       setStudyStats({
         selfStudy: {
           sessions: selfStudyRecords.length,
-          totalTime: localSelfTime
+          totalTime: localSelfTime + extraFromDb
         },
         lectureStudy: {
           sessions: lectureStudyRecords.length,
           totalTime: localLectureTime
         }
+      });
+    } else {
+      setStudyStats({
+        selfStudy: { sessions: 0, totalTime: 0 },
+        lectureStudy: { sessions: 0, totalTime: 0 }
       });
     }
   };
