@@ -5,9 +5,11 @@ import Signup from '@/components/Signup';
 import Home from '@/components/Home';
 import Timer from '@/components/Timer';
 import StudyRecords from '@/components/StudyRecords';
-import PDFGenerator from '@/components/PDFGenerator';
 import Leaderboard from '@/components/Leaderboard';
 import PublicLeaderboard from '@/components/PublicLeaderboard';
+import PomodoroTimer from '@/components/PomodoroTimer';
+import TargetStudyTimer from '@/components/TargetStudyTimer';
+import SubjectStats from '@/components/SubjectStats';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -16,27 +18,14 @@ const Index = () => {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [showPublicLeaderboard, setShowPublicLeaderboard] = useState(false);
 
-  const handleCreateAccount = () => {
-    setIsCreatingAccount(true);
-  };
-
-  const handleBackToLogin = () => {
-    setIsCreatingAccount(false);
-  };
-
-  const handleShowPublicLeaderboard = () => {
-    setShowPublicLeaderboard(true);
-  };
-
-  const handleBackFromPublicLeaderboard = () => {
-    setShowPublicLeaderboard(false);
-  };
+  const handleCreateAccount = () => setIsCreatingAccount(true);
+  const handleBackToLogin = () => setIsCreatingAccount(false);
+  const handleShowPublicLeaderboard = () => setShowPublicLeaderboard(true);
+  const handleBackFromPublicLeaderboard = () => setShowPublicLeaderboard(false);
 
   const handleNavigate = (page: string, studyType?: 'self-study' | 'lecture-study') => {
     setCurrentPage(page);
-    if (studyType) {
-      setCurrentStudyType(studyType);
-    }
+    if (studyType) setCurrentStudyType(studyType);
   };
 
   const handleBackToHome = () => {
@@ -44,7 +33,6 @@ const Index = () => {
     setCurrentStudyType(null);
   };
 
-  // Show loading while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -58,46 +46,27 @@ const Index = () => {
     );
   }
 
-  // Authentication flow
   if (!user) {
-    if (showPublicLeaderboard) {
-      return <PublicLeaderboard onBack={handleBackFromPublicLeaderboard} />;
-    }
-    if (isCreatingAccount) {
-      return <Signup onBackToLogin={handleBackToLogin} />;
-    }
+    if (showPublicLeaderboard) return <PublicLeaderboard onBack={handleBackFromPublicLeaderboard} />;
+    if (isCreatingAccount) return <Signup onBackToLogin={handleBackToLogin} />;
     return <Login onCreateAccount={handleCreateAccount} onShowLeaderboard={handleShowPublicLeaderboard} />;
   }
 
-  // Main app pages
   switch (currentPage) {
     case 'home':
       return <Home onNavigate={handleNavigate} />;
-    
     case 'timer':
-      return currentStudyType ? (
-        <Timer studyType={currentStudyType} onBack={handleBackToHome} />
-      ) : (
-        <Home onNavigate={handleNavigate} />
-      );
-    
+      return currentStudyType ? <Timer studyType={currentStudyType} onBack={handleBackToHome} /> : <Home onNavigate={handleNavigate} />;
     case 'records':
-      return currentStudyType ? (
-        <StudyRecords studyType={currentStudyType} onBack={handleBackToHome} />
-      ) : (
-        <Home onNavigate={handleNavigate} />
-      );
-    
-    case 'pdf':
-      return currentStudyType ? (
-        <PDFGenerator studyType={currentStudyType} onBack={handleBackToHome} />
-      ) : (
-        <Home onNavigate={handleNavigate} />
-      );
-    
+      return currentStudyType ? <StudyRecords studyType={currentStudyType} onBack={handleBackToHome} /> : <Home onNavigate={handleNavigate} />;
+    case 'pomodoro':
+      return <PomodoroTimer onBack={handleBackToHome} />;
+    case 'target-study':
+      return <TargetStudyTimer onBack={handleBackToHome} />;
+    case 'subject-stats':
+      return <SubjectStats onBack={handleBackToHome} />;
     case 'leaderboard':
       return <Leaderboard onBack={handleBackToHome} />;
-    
     default:
       return <Home onNavigate={handleNavigate} />;
   }

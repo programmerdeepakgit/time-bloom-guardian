@@ -109,11 +109,11 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
             .from('users')
             .update({ total_study_time: finalTotal, updated_at: new Date().toISOString() })
             .eq('auth_user_id', user.id)
-            .then(() => {
-              console.log('Study time synced:', finalTotal);
-            });
+            .then(() => console.log('Study time synced:', finalTotal));
         });
     }
+
+    updateStudyingStatus(false);
 
     setTimerState({
       isRunning: false,
