@@ -273,11 +273,17 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onBack }) => {
 
                     {/* User Info */}
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h3 className="font-bold text-foreground">{user.username}</h3>
                         {isCurrentUser && (
                           <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full">
                             You
+                          </span>
+                        )}
+                        {user.is_studying && (
+                          <span className="inline-flex items-center gap-1 text-xs bg-success/20 text-success px-2 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
+                            Studying{user.currently_studying_subject && user.currently_studying_subject !== 'all' ? ` ${user.currently_studying_subject}` : ''}
                           </span>
                         )}
                       </div>
