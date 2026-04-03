@@ -23,6 +23,8 @@ interface LeaderboardEntry {
   name: string;
   class: string;
   updated_at: string;
+  is_studying?: boolean;
+  currently_studying_subject?: string;
 }
 
 interface PublicLeaderboardProps {
