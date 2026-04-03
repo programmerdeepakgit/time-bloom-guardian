@@ -51,6 +51,14 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
     };
   }, [timerState.isRunning]);
 
+  const updateStudyingStatus = async (studying: boolean) => {
+    if (!user) return;
+    await supabase
+      .from('users')
+      .update({ is_studying: studying, currently_studying_subject: studying ? timerState.currentSubject : null })
+      .eq('auth_user_id', user.id);
+  };
+
   const handleStart = () => {
     const now = new Date();
     setTimerState(prev => ({
@@ -58,7 +66,7 @@ const Timer: React.FC<TimerProps> = ({ studyType, onBack }) => {
       isRunning: true,
       startTime: now,
     }));
-    
+    updateStudyingStatus(true);
     toast({
       title: "Timer Started",
       description: `${studyType === 'self-study' ? 'Self Study' : 'Lecture Study'} timer is now running`,
