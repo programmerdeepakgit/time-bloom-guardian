@@ -1,6 +1,6 @@
 export interface StudyRecord {
   id: string;
-  type: 'self-study' | 'lecture-study';
+  type: 'self-study' | 'lecture-study' | 'pomodoro' | 'target-study';
   subject: string;
   startTime: Date;
   endTime: Date;
