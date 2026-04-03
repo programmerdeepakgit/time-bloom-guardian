@@ -66,8 +66,10 @@ export type Database = {
           city: string
           class: string
           created_at: string | null
+          currently_studying_subject: string | null
           email: string
           id: string
+          is_studying: boolean | null
           name: string
           password_last_updated: string | null
           phone: string
@@ -82,8 +84,10 @@ export type Database = {
           city: string
           class: string
           created_at?: string | null
+          currently_studying_subject?: string | null
           email: string
           id?: string
+          is_studying?: boolean | null
           name: string
           password_last_updated?: string | null
           phone: string
@@ -98,8 +102,10 @@ export type Database = {
           city?: string
           class?: string
           created_at?: string | null
+          currently_studying_subject?: string | null
           email?: string
           id?: string
+          is_studying?: boolean | null
           name?: string
           password_last_updated?: string | null
           phone?: string

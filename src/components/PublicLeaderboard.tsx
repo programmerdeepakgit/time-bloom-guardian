@@ -23,6 +23,8 @@ interface LeaderboardEntry {
   name: string;
   class: string;
   updated_at: string;
+  is_studying?: boolean;
+  currently_studying_subject?: string;
 }
 
 interface PublicLeaderboardProps {
@@ -37,10 +39,17 @@ const PublicLeaderboard: React.FC<PublicLeaderboardProps> = ({ onBack }) => {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_leaderboard');
+      // Use direct query instead of RPC to get is_studying fields
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, username, name, class, total_study_time, updated_at, is_studying, currently_studying_subject')
+        .not('username', 'is', null)
+        .not('total_study_time', 'is', null)
+        .order('total_study_time', { ascending: false })
+        .limit(100);
       
       if (error) throw error;
-      setLeaderboardData(data || []);
+      setLeaderboardData((data || []) as LeaderboardEntry[]);
     } catch (error) {
       toast({
         title: "Error Loading Leaderboard",
@@ -171,6 +180,12 @@ const PublicLeaderboard: React.FC<PublicLeaderboardProps> = ({ onBack }) => {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-foreground">{user.username}</h3>
+                        {user.is_studying && (
+                          <span className="inline-flex items-center gap-1 text-xs bg-success/20 text-success px-2 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
+                            Studying{user.currently_studying_subject && user.currently_studying_subject !== 'all' ? ` ${user.currently_studying_subject}` : ''}
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {user.name} • {user.class}
