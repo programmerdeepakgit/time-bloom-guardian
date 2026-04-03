@@ -205,12 +205,21 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       color: 'primary',
       action: () => onNavigate('records', 'self-study'),
     },
+    // Pomodoro
     {
-      title: 'Self Study Report',
-      description: 'Generate PDF report',
-      icon: FileText,
-      color: 'secondary',
-      action: () => onNavigate('pdf', 'self-study'),
+      title: 'Pomodoro Timer',
+      description: '25 min study • 5 min break',
+      icon: Coffee,
+      color: 'success',
+      action: () => onNavigate('pomodoro'),
+    },
+    // Target Study
+    {
+      title: 'Target Study',
+      description: 'Set a goal and study with breaks',
+      icon: Target,
+      color: 'success',
+      action: () => onNavigate('target-study'),
     },
     // Lecture Study Options
     {
@@ -227,12 +236,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       color: 'primary',
       action: () => onNavigate('records', 'lecture-study'),
     },
+    // Subject Stats
     {
-      title: 'Lecture Study Report',
-      description: 'Generate PDF report',
-      icon: FileText,
-      color: 'secondary',
-      action: () => onNavigate('pdf', 'lecture-study'),
+      title: 'Subject Study Time',
+      description: 'View time per subject across all modes',
+      icon: BarChart3,
+      color: 'primary',
+      action: () => onNavigate('subject-stats'),
     },
   ];
 
