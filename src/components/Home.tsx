@@ -9,7 +9,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Timer, 
   BookOpen, 
-  FileText, 
   GraduationCap, 
   Clock,
   TrendingUp,
@@ -21,7 +20,10 @@ import {
   MessageSquare,
   Instagram,
   Menu,
-  X
+  X,
+  Target,
+  Coffee,
+  BarChart3
 } from 'lucide-react';
 import ProfileSettings from './ProfileSettings';
 import Feedback from './Feedback';
