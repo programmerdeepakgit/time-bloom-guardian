@@ -10,6 +10,11 @@ import PublicLeaderboard from '@/components/PublicLeaderboard';
 import PomodoroTimer from '@/components/PomodoroTimer';
 import TargetStudyTimer from '@/components/TargetStudyTimer';
 import SubjectStats from '@/components/SubjectStats';
+import GroupsHome from '@/components/GroupsHome';
+import CreateGroup from '@/components/CreateGroup';
+import SearchGroups from '@/components/SearchGroups';
+import GroupDetail from '@/components/GroupDetail';
+import Notifications from '@/components/Notifications';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -17,20 +22,30 @@ const Index = () => {
   const [currentStudyType, setCurrentStudyType] = useState<'self-study' | 'lecture-study' | null>(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [showPublicLeaderboard, setShowPublicLeaderboard] = useState(false);
+  const [pageData, setPageData] = useState<any>(null);
 
   const handleCreateAccount = () => setIsCreatingAccount(true);
   const handleBackToLogin = () => setIsCreatingAccount(false);
   const handleShowPublicLeaderboard = () => setShowPublicLeaderboard(true);
   const handleBackFromPublicLeaderboard = () => setShowPublicLeaderboard(false);
 
-  const handleNavigate = (page: string, studyType?: 'self-study' | 'lecture-study') => {
+  const handleNavigate = (page: string, studyTypeOrData?: any) => {
     setCurrentPage(page);
-    if (studyType) setCurrentStudyType(studyType);
+    if (studyTypeOrData === 'self-study' || studyTypeOrData === 'lecture-study') {
+      setCurrentStudyType(studyTypeOrData);
+      setPageData(null);
+    } else if (studyTypeOrData) {
+      setPageData(studyTypeOrData);
+      setCurrentStudyType(null);
+    } else {
+      setPageData(null);
+    }
   };
 
   const handleBackToHome = () => {
     setCurrentPage('home');
     setCurrentStudyType(null);
+    setPageData(null);
   };
 
   if (loading) {
@@ -67,6 +82,36 @@ const Index = () => {
       return <SubjectStats onBack={handleBackToHome} />;
     case 'leaderboard':
       return <Leaderboard onBack={handleBackToHome} />;
+    case 'groups':
+      return <GroupsHome onBack={handleBackToHome} onNavigate={handleNavigate} />;
+    case 'create-group':
+      return <CreateGroup onBack={() => setCurrentPage('groups')} />;
+    case 'search-groups':
+      return <SearchGroups onBack={() => setCurrentPage('groups')} />;
+    case 'group-detail':
+      return (
+        <GroupDetail
+          groupId={pageData?.groupId}
+          onBack={() => setCurrentPage('groups')}
+          onStartGroupStudy={(groupId, mode, subject) => {
+            if (mode === 'pomodoro') {
+              setCurrentPage('pomodoro');
+            } else {
+              setCurrentPage('target-study');
+            }
+          }}
+        />
+      );
+    case 'notifications':
+      return (
+        <Notifications
+          onClose={handleBackToHome}
+          onNavigateToGroup={(groupId) => {
+            setPageData({ groupId });
+            setCurrentPage('group-detail');
+          }}
+        />
+      );
     default:
       return <Home onNavigate={handleNavigate} />;
   }
