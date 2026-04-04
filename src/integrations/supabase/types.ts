@@ -59,6 +59,156 @@ export type Database = {
         }
         Relationships: []
       }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_study_sessions: {
+        Row: {
+          group_id: string
+          id: string
+          is_active: boolean
+          mode: string
+          started_at: string
+          started_by: string
+          subject: string
+          target_duration: number | null
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          is_active?: boolean
+          mode: string
+          started_at?: string
+          started_by: string
+          subject?: string
+          target_duration?: number | null
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          is_active?: boolean
+          mode?: string
+          started_at?: string
+          started_by?: string
+          subject?: string
+          target_duration?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_study_sessions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          group_code: string
+          id: string
+          is_public: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          group_code: string
+          id?: string
+          is_public?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          group_code?: string
+          id?: string
+          is_public?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          from_user_id: string | null
+          group_id: string | null
+          id: string
+          is_read: boolean
+          message: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          from_user_id?: string | null
+          group_id?: string | null
+          id?: string
+          is_read?: boolean
+          message: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          from_user_id?: string | null
+          group_id?: string | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           access_key: string
@@ -121,6 +271,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_group_code: { Args: never; Returns: string }
       get_leaderboard: {
         Args: never
         Returns: {
