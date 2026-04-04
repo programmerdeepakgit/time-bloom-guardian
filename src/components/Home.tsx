@@ -605,13 +605,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Analytics */}
+          {/* Analytics & Groups */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
                 <span className="text-xs font-bold text-primary">A</span>
               </div>
-              <h2 className="text-xl font-semibold text-foreground">Analytics</h2>
+              <h2 className="text-xl font-semibold text-foreground">Analytics & Groups</h2>
             </div>
             <div className="grid gap-3">
               {menuItems.slice(6).map((item, index) => {
@@ -619,7 +619,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 return (
                   <Card key={index} className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={item.action}>
                     <div className="p-4 flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-primary/20`}>
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/20">
                         <IconComponent className="w-6 h-6 text-primary" />
                       </div>
                       <div className="flex-1">
