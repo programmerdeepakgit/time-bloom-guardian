@@ -288,6 +288,20 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 <div className="flex items-center gap-2">
                   <TimerButton
                     variant="secondary"
+                    size="sm"
+                    onClick={() => onNavigate('notifications')}
+                    className="flex items-center gap-2 relative"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unreadNotifications > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                        {unreadNotifications}
+                      </span>
+                    )}
+                  </TimerButton>
+
+                  <TimerButton
+                    variant="secondary"
                     onClick={() => onNavigate('leaderboard')}
                     className="flex items-center gap-2"
                   >
