@@ -32,7 +32,7 @@ import Feedback from './Feedback';
 import { useToast } from '@/hooks/use-toast';
 
 interface HomeProps {
-  onNavigate: (page: string, studyType?: 'self-study' | 'lecture-study') => void;
+  onNavigate: (page: string, studyType?: any) => void;
 }
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
@@ -44,6 +44,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [syncing, setSyncing] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [studyStats, setStudyStats] = useState({
     selfStudy: { sessions: 0, totalTime: 0 },
     lectureStudy: { sessions: 0, totalTime: 0 }
@@ -54,6 +55,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     if (user) {
       fetchUserProfile();
       calculateStudyStats();
+      fetchUnreadCount();
     }
   }, [user]);
 
