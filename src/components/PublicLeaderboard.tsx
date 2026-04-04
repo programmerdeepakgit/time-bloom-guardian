@@ -39,14 +39,7 @@ const PublicLeaderboard: React.FC<PublicLeaderboardProps> = ({ onBack }) => {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      // Use direct query instead of RPC to get is_studying fields
-      const { data, error } = await supabase
-        .from('users')
-        .select('id, username, name, class, total_study_time, updated_at, is_studying, currently_studying_subject')
-        .not('username', 'is', null)
-        .not('total_study_time', 'is', null)
-        .order('total_study_time', { ascending: false })
-        .limit(100);
+      const { data, error } = await supabase.rpc('get_leaderboard');
       
       if (error) throw error;
       setLeaderboardData((data || []) as LeaderboardEntry[]);
