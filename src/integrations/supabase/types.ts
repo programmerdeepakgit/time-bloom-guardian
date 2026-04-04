@@ -125,7 +125,9 @@ export type Database = {
         Args: never
         Returns: {
           class: string
+          currently_studying_subject: string
           id: string
+          is_studying: boolean
           name: string
           total_study_time: number
           updated_at: string
