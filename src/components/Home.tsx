@@ -262,6 +262,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       color: 'primary',
       action: () => onNavigate('subject-stats'),
     },
+    // Groups
+    {
+      title: 'Study Groups',
+      description: 'Create or join groups to study together',
+      icon: Users,
+      color: 'primary',
+      action: () => onNavigate('groups'),
+    },
   ];
 
   return (
