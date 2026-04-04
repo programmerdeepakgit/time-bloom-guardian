@@ -59,6 +59,20 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     }
   }, [user]);
 
+  const fetchUnreadCount = async () => {
+    if (!user) return;
+    try {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+      setUnreadNotifications(count || 0);
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+    }
+  };
+
   const fetchUserProfile = async () => {
     if (!user) return;
     
