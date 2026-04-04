@@ -392,6 +392,18 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 <TimerButton
                   variant="secondary"
                   onClick={() => {
+                    onNavigate('groups');
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2"
+                >
+                  <Users className="w-4 h-4" />
+                  Study Groups
+                </TimerButton>
+
+                <TimerButton
+                  variant="secondary"
+                  onClick={() => {
                     onNavigate('leaderboard');
                     setShowMobileMenu(false);
                   }}
