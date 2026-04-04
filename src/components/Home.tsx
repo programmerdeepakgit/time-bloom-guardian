@@ -23,14 +23,16 @@ import {
   X,
   Target,
   Coffee,
-  BarChart3
+  BarChart3,
+  Users,
+  Bell
 } from 'lucide-react';
 import ProfileSettings from './ProfileSettings';
 import Feedback from './Feedback';
 import { useToast } from '@/hooks/use-toast';
 
 interface HomeProps {
-  onNavigate: (page: string, studyType?: 'self-study' | 'lecture-study') => void;
+  onNavigate: (page: string, studyType?: any) => void;
 }
 
 const Home: React.FC<HomeProps> = ({ onNavigate }) => {
@@ -42,6 +44,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [syncing, setSyncing] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [studyStats, setStudyStats] = useState({
     selfStudy: { sessions: 0, totalTime: 0 },
     lectureStudy: { sessions: 0, totalTime: 0 }
@@ -52,8 +55,23 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     if (user) {
       fetchUserProfile();
       calculateStudyStats();
+      fetchUnreadCount();
     }
   }, [user]);
+
+  const fetchUnreadCount = async () => {
+    if (!user) return;
+    try {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+      setUnreadNotifications(count || 0);
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+    }
+  };
 
   const fetchUserProfile = async () => {
     if (!user) return;
@@ -244,6 +262,14 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       color: 'primary',
       action: () => onNavigate('subject-stats'),
     },
+    // Groups
+    {
+      title: 'Study Groups',
+      description: 'Create or join groups to study together',
+      icon: Users,
+      color: 'primary',
+      action: () => onNavigate('groups'),
+    },
   ];
 
   return (
@@ -268,6 +294,20 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 </div>
                 
                 <div className="flex items-center gap-2">
+                  <TimerButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onNavigate('notifications')}
+                    className="flex items-center gap-2 relative"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unreadNotifications > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                        {unreadNotifications}
+                      </span>
+                    )}
+                  </TimerButton>
+
                   <TimerButton
                     variant="secondary"
                     onClick={() => onNavigate('leaderboard')}
@@ -324,6 +364,19 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                   >
                     <User className="w-4 h-4" />
                   </TimerButton>
+                  <TimerButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onNavigate('notifications')}
+                    className="flex items-center gap-2 relative"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unreadNotifications > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                        {unreadNotifications}
+                      </span>
+                    )}
+                  </TimerButton>
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -344,6 +397,18 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           {isMobile && showMobileMenu && (
             <Card className="gradient-secondary p-4 mb-4">
               <div className="space-y-3">
+                <TimerButton
+                  variant="secondary"
+                  onClick={() => {
+                    onNavigate('groups');
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-2"
+                >
+                  <Users className="w-4 h-4" />
+                  Study Groups
+                </TimerButton>
+
                 <TimerButton
                   variant="secondary"
                   onClick={() => {
@@ -540,13 +605,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Analytics */}
+          {/* Analytics & Groups */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
                 <span className="text-xs font-bold text-primary">A</span>
               </div>
-              <h2 className="text-xl font-semibold text-foreground">Analytics</h2>
+              <h2 className="text-xl font-semibold text-foreground">Analytics & Groups</h2>
             </div>
             <div className="grid gap-3">
               {menuItems.slice(6).map((item, index) => {
@@ -554,7 +619,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 return (
                   <Card key={index} className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={item.action}>
                     <div className="p-4 flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-primary/20`}>
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/20">
                         <IconComponent className="w-6 h-6 text-primary" />
                       </div>
                       <div className="flex-1">
