@@ -23,7 +23,9 @@ import {
   X,
   Target,
   Coffee,
-  BarChart3
+  BarChart3,
+  Users,
+  Bell
 } from 'lucide-react';
 import ProfileSettings from './ProfileSettings';
 import Feedback from './Feedback';
