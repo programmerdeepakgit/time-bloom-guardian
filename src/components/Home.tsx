@@ -207,8 +207,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     }
   };
 
-  const menuItems = [
-    // Self Study Options
+  const studyModes = [
     {
       title: 'Self Study Timer',
       description: 'Start your self study session',
@@ -217,21 +216,12 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       action: () => onNavigate('timer', 'self-study'),
     },
     {
-      title: 'Self Study Records',
-      description: `${studyStats.selfStudy.sessions} sessions • ${formatTime(studyStats.selfStudy.totalTime)}`,
-      icon: BookOpen,
-      color: 'primary',
-      action: () => onNavigate('records', 'self-study'),
-    },
-    // Pomodoro
-    {
       title: 'Pomodoro Timer',
       description: '25 min study • 5 min break',
       icon: Coffee,
       color: 'success',
       action: () => onNavigate('pomodoro'),
     },
-    // Target Study
     {
       title: 'Target Study',
       description: 'Set a goal and study with breaks',
@@ -239,7 +229,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       color: 'success',
       action: () => onNavigate('target-study'),
     },
-    // Lecture Study Options
     {
       title: 'Lecture Study Timer',
       description: 'Start your lecture study session',
@@ -247,14 +236,16 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       color: 'success',
       action: () => onNavigate('timer', 'lecture-study'),
     },
+  ];
+
+  const analyticsItems = [
     {
-      title: 'Lecture Study Records',
-      description: `${studyStats.lectureStudy.sessions} sessions • ${formatTime(studyStats.lectureStudy.totalTime)}`,
+      title: 'Study Records',
+      description: 'View all sessions with filters by mode, subject & date',
       icon: BookOpen,
       color: 'primary',
-      action: () => onNavigate('records', 'lecture-study'),
+      action: () => onNavigate('records'),
     },
-    // Subject Stats
     {
       title: 'Subject Study Time',
       description: 'View time per subject across all modes',
@@ -262,7 +253,16 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       color: 'primary',
       action: () => onNavigate('subject-stats'),
     },
-    // Groups
+    {
+      title: 'Leaderboard',
+      description: 'Compare your study time with others',
+      icon: Trophy,
+      color: 'primary',
+      action: () => onNavigate('leaderboard'),
+    },
+  ];
+
+  const socialItems = [
     {
       title: 'Study Groups',
       description: 'Create or join groups to study together',
