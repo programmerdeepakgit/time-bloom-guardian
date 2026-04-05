@@ -403,18 +403,6 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 <TimerButton
                   variant="secondary"
                   onClick={() => {
-                    onNavigate('leaderboard');
-                    setShowMobileMenu(false);
-                  }}
-                  className="w-full flex items-center gap-2"
-                >
-                  <Trophy className="w-4 h-4" />
-                  Leaderboard
-                </TimerButton>
-                
-                <TimerButton
-                  variant="secondary"
-                  onClick={() => {
                     setShowFeedback(true);
                     setShowMobileMenu(false);
                   }}
