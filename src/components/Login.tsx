@@ -4,15 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TimerButton } from '@/components/ui/timer-button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Lock, Mail, Eye, EyeOff, Trophy, Instagram } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, Instagram } from 'lucide-react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 interface LoginProps {
   onCreateAccount: () => void;
-  onShowLeaderboard: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => {
+const Login: React.FC<LoginProps> = ({ onCreateAccount }) => {
   const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,9 +60,7 @@ const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => 
           </div>
           <div>
             <h1 className="text-3xl font-bold text-primary mb-2">JEE TIMER</h1>
-            <p className="text-muted-foreground">
-              Sign in to your account
-            </p>
+            <p className="text-muted-foreground">Sign in to your account</p>
           </div>
         </div>
 
@@ -106,11 +103,10 @@ const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => 
               </div>
             </div>
 
-            {/* hCaptcha */}
             <div className="flex justify-center">
               <HCaptcha
                 ref={captchaRef}
-                sitekey="10000000-ffff-ffff-ffff-000000000001" // Test key
+                sitekey="10000000-ffff-ffff-ffff-000000000001"
                 onVerify={(token) => setCaptchaToken(token)}
                 onExpire={() => setCaptchaToken(null)}
               />
@@ -154,17 +150,11 @@ const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => 
           </form>
         </Card>
 
-        {/* Create Account Option */}
+        {/* Create Account */}
         <Card className="gradient-secondary p-4">
           <div className="text-center space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?
-            </p>
-            <TimerButton
-              variant="secondary"
-              onClick={onCreateAccount}
-              className="w-full"
-            >
+            <p className="text-sm text-muted-foreground">Don't have an account?</p>
+            <TimerButton variant="secondary" onClick={onCreateAccount} className="w-full">
               Create New Account
             </TimerButton>
           </div>
@@ -185,13 +175,10 @@ const Login: React.FC<LoginProps> = ({ onCreateAccount, onShowLeaderboard }) => 
             <p className="text-xs text-muted-foreground">Track Progress</p>
           </div>
           <div className="space-y-2">
-            <button 
-              onClick={onShowLeaderboard}
-              className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center mx-auto hover:bg-yellow-500/30 transition-colors"
-            >
-              <Trophy className="w-5 h-5 text-yellow-500" />
-            </button>
-            <p className="text-xs text-muted-foreground">Leaderboard</p>
+            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center mx-auto">
+              <span className="text-lg">👥</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Study Groups</p>
           </div>
         </div>
 

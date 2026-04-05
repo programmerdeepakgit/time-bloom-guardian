@@ -21,13 +21,10 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [currentStudyType, setCurrentStudyType] = useState<'self-study' | 'lecture-study' | null>(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-  const [showPublicLeaderboard, setShowPublicLeaderboard] = useState(false);
   const [pageData, setPageData] = useState<any>(null);
 
   const handleCreateAccount = () => setIsCreatingAccount(true);
   const handleBackToLogin = () => setIsCreatingAccount(false);
-  const handleShowPublicLeaderboard = () => setShowPublicLeaderboard(true);
-  const handleBackFromPublicLeaderboard = () => setShowPublicLeaderboard(false);
 
   const handleNavigate = (page: string, studyTypeOrData?: any) => {
     setCurrentPage(page);
@@ -62,9 +59,8 @@ const Index = () => {
   }
 
   if (!user) {
-    if (showPublicLeaderboard) return <PublicLeaderboard onBack={handleBackFromPublicLeaderboard} />;
     if (isCreatingAccount) return <Signup onBackToLogin={handleBackToLogin} />;
-    return <Login onCreateAccount={handleCreateAccount} onShowLeaderboard={handleShowPublicLeaderboard} />;
+    return <Login onCreateAccount={handleCreateAccount} />;
   }
 
   switch (currentPage) {
@@ -73,7 +69,7 @@ const Index = () => {
     case 'timer':
       return currentStudyType ? <Timer studyType={currentStudyType} onBack={handleBackToHome} /> : <Home onNavigate={handleNavigate} />;
     case 'records':
-      return currentStudyType ? <StudyRecords studyType={currentStudyType} onBack={handleBackToHome} /> : <Home onNavigate={handleNavigate} />;
+      return <StudyRecords onBack={handleBackToHome} />;
     case 'pomodoro':
       return <PomodoroTimer onBack={handleBackToHome} />;
     case 'target-study':
