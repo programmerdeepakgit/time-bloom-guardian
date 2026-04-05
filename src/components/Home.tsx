@@ -519,24 +519,23 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </Card>
         </div>
 
-        {/* Study Options */}
+        {/* Study Modes */}
         <div className="space-y-6">
-          {/* Self Study Section */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 bg-success/20 rounded flex items-center justify-center">
                 <span className="text-xs font-bold text-success">S</span>
               </div>
-              <h2 className="text-xl font-semibold text-foreground">Self Study</h2>
+              <h2 className="text-xl font-semibold text-foreground">Study Modes</h2>
             </div>
             <div className="grid gap-3">
-              {menuItems.slice(0, 2).map((item, index) => {
+              {studyModes.map((item, index) => {
                 const IconComponent = item.icon;
                 return (
                   <Card key={index} className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={item.action}>
                     <div className="p-4 flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.color === 'success' ? 'bg-success/20' : item.color === 'primary' ? 'bg-primary/20' : 'bg-secondary/20'}`}>
-                        <IconComponent className={`w-6 h-6 ${item.color === 'success' ? 'text-success' : item.color === 'primary' ? 'text-primary' : 'text-secondary-foreground'}`} />
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-success/20">
+                        <IconComponent className="w-6 h-6 text-success" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
@@ -549,72 +548,44 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          {/* Pomodoro & Target Study Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
-                <span className="text-xs font-bold text-primary">P</span>
-              </div>
-              <h2 className="text-xl font-semibold text-foreground">Focus Modes</h2>
-            </div>
-            <div className="grid gap-3">
-              {menuItems.slice(2, 4).map((item, index) => {
-                const IconComponent = item.icon;
-                return (
-                  <Card key={index} className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={item.action}>
-                    <div className="p-4 flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.color === 'success' ? 'bg-success/20' : item.color === 'primary' ? 'bg-primary/20' : 'bg-secondary/20'}`}>
-                        <IconComponent className={`w-6 h-6 ${item.color === 'success' ? 'text-success' : item.color === 'primary' ? 'text-primary' : 'text-secondary-foreground'}`} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Lecture Study Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
-                <span className="text-xs font-bold text-primary">L</span>
-              </div>
-              <h2 className="text-xl font-semibold text-foreground">Lecture Study</h2>
-            </div>
-            <div className="grid gap-3">
-              {menuItems.slice(4, 6).map((item, index) => {
-                const IconComponent = item.icon;
-                return (
-                  <Card key={index} className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={item.action}>
-                    <div className="p-4 flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.color === 'success' ? 'bg-success/20' : item.color === 'primary' ? 'bg-primary/20' : 'bg-secondary/20'}`}>
-                        <IconComponent className={`w-6 h-6 ${item.color === 'success' ? 'text-success' : item.color === 'primary' ? 'text-primary' : 'text-secondary-foreground'}`} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Analytics & Groups */}
+          {/* Analytics & Leaderboard */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
                 <span className="text-xs font-bold text-primary">A</span>
               </div>
-              <h2 className="text-xl font-semibold text-foreground">Analytics & Groups</h2>
+              <h2 className="text-xl font-semibold text-foreground">Analytics & Leaderboard</h2>
             </div>
             <div className="grid gap-3">
-              {menuItems.slice(6).map((item, index) => {
+              {analyticsItems.map((item, index) => {
+                const IconComponent = item.icon;
+                return (
+                  <Card key={index} className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={item.action}>
+                    <div className="p-4 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/20">
+                        <IconComponent className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Groups */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
+                <span className="text-xs font-bold text-primary">G</span>
+              </div>
+              <h2 className="text-xl font-semibold text-foreground">Study Groups</h2>
+            </div>
+            <div className="grid gap-3">
+              {socialItems.map((item, index) => {
                 const IconComponent = item.icon;
                 return (
                   <Card key={index} className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={item.action}>
