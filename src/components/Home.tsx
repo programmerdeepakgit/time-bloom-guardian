@@ -584,6 +584,29 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               })}
             </div>
           </div>
+
+          {/* Admin Section - only for programmer_deepak */}
+          {isAdmin && (
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-6 h-6 bg-destructive/20 rounded flex items-center justify-center">
+                  <span className="text-xs font-bold text-destructive">🔒</span>
+                </div>
+                <h2 className="text-xl font-semibold text-foreground">Admin Panel</h2>
+              </div>
+              <Card className="gradient-card card-glow cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] border-destructive/20" onClick={() => onNavigate('admin-broadcast')}>
+                <div className="p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-destructive/20">
+                    <Megaphone className="w-6 h-6 text-destructive" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground mb-1">Broadcast Notification</h3>
+                    <p className="text-sm text-muted-foreground">Send notifications to all or specific users</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
