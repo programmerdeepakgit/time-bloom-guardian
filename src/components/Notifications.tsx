@@ -155,7 +155,7 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
       case 'study_session': return <Play className="w-5 h-5 text-success" />;
       case 'request_accepted': return <Check className="w-5 h-5 text-success" />;
       case 'request_rejected': return <X className="w-5 h-5 text-destructive" />;
-      default: return <Bell className="w-5 h-5 text-muted-foreground" />;
+      case 'announcement': return <Megaphone className="w-5 h-5 text-primary" />;
     }
   };
 
