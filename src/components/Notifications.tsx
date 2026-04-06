@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { TimerButton } from '@/components/ui/timer-button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Bell, Check, X, Users, UserPlus, Play, Trash2 } from 'lucide-react';
+import { Bell, Check, X, Users, UserPlus, Play, Trash2, Megaphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NotificationsProps {
