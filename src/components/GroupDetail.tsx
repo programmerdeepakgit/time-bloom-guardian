@@ -66,34 +66,23 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
         .single();
       setGroup(groupData);
 
-      // Fetch members
-      const { data: memberData } = await supabase
-        .from('group_members')
-        .select('user_id, role')
-        .eq('group_id', groupId);
+      // Fetch members via RPC
+      const { data: memberProfiles, error: memberError } = await supabase
+        .rpc('get_group_member_profiles', { _group_id: groupId });
 
-      if (memberData) {
-        const userIds = memberData.map(m => m.user_id);
-        const { data: profiles } = await supabase
-          .from('users')
-          .select('auth_user_id, username, name, total_study_time, is_studying, currently_studying_subject')
-          .in('auth_user_id', userIds);
-
-        const enriched: MemberInfo[] = memberData.map(m => {
-          const profile = profiles?.find(p => p.auth_user_id === m.user_id);
-          return {
-            user_id: m.user_id,
-            role: m.role,
-            username: profile?.username || 'Unknown',
-            name: profile?.name || '',
-            total_study_time: profile?.total_study_time || 0,
-            is_studying: profile?.is_studying || false,
-            currently_studying_subject: profile?.currently_studying_subject || null,
-          };
-        }).sort((a, b) => b.total_study_time - a.total_study_time);
+      if (!memberError && memberProfiles) {
+        const enriched: MemberInfo[] = (memberProfiles as any[]).map(m => ({
+          user_id: m.user_id,
+          role: m.role,
+          username: m.username || 'Unknown',
+          name: m.name || '',
+          total_study_time: m.total_study_time || 0,
+          is_studying: m.is_studying || false,
+          currently_studying_subject: m.currently_studying_subject || null,
+        })).sort((a, b) => b.total_study_time - a.total_study_time);
 
         setMembers(enriched);
-        setIsCreator(memberData.some(m => m.user_id === user.id && m.role === 'creator'));
+        setIsCreator(enriched.some(m => m.user_id === user.id && m.role === 'creator'));
       }
 
       // Fetch active sessions
@@ -104,16 +93,15 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
         .eq('is_active', true);
 
       if (sessions && sessions.length > 0) {
-        const starterIds = sessions.map(s => s.started_by);
-        const { data: starterProfiles } = await supabase
-          .from('users')
-          .select('auth_user_id, username, name')
-          .in('auth_user_id', starterIds);
-
-        const enrichedSessions = sessions.map(s => ({
-          ...s,
-          starter_name: starterProfiles?.find(p => p.auth_user_id === s.started_by)?.username || 'Someone',
-        }));
+        // Use already-fetched member profiles for starter names
+        const enrichedSessions = sessions.map(s => {
+          const starter = members.find(m => m.user_id === s.started_by) ||
+            (memberProfiles as any[])?.find((m: any) => m.user_id === s.started_by);
+          return {
+            ...s,
+            starter_name: starter?.username || 'Someone',
+          };
+        });
         setActiveSessions(enrichedSessions);
       } else {
         setActiveSessions([]);
@@ -129,12 +117,11 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
     if (!user || !inviteUsername.trim()) return;
     setInviting(true);
     try {
-      // Find user by username
-      const { data: targetUser } = await supabase
-        .from('users')
-        .select('auth_user_id, username')
-        .eq('username', inviteUsername.trim())
-        .single();
+      // Find user by username via RPC
+      const { data: targetUsers } = await supabase
+        .rpc('find_user_by_username', { _username: inviteUsername.trim() });
+
+      const targetUser = (targetUsers as any[])?.[0] || null;
 
       if (!targetUser) {
         toast({ title: "User not found", description: "Check the username and try again.", variant: "destructive" });
@@ -157,11 +144,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
       }
 
       // Get sender's username
-      const { data: senderProfile } = await supabase
-        .from('users')
-        .select('username, name')
-        .eq('auth_user_id', user.id)
-        .single();
+      const senderProfile = members.find(m => m.user_id === user.id);
 
       // Send invite notification
       await supabase.from('notifications').insert({
@@ -193,12 +176,8 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
       });
       if (error) throw error;
 
-      // Get sender info
-      const { data: senderProfile } = await supabase
-        .from('users')
-        .select('username, name')
-        .eq('auth_user_id', user.id)
-        .single();
+      // Get sender info from already-loaded members
+      const senderProfile = members.find(m => m.user_id === user.id);
 
       // Notify all members except self
       const otherMembers = members.filter(m => m.user_id !== user.id);
