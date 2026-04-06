@@ -56,12 +56,9 @@ const SearchGroups: React.FC<SearchGroupsProps> = ({ onBack }) => {
     setSearching(true);
     try {
       const { data, error } = await supabase
-        .from('groups')
-        .select('*')
-        .eq('group_code', searchByCode.trim().toUpperCase())
-        .limit(1);
+        .rpc('get_group_by_code', { _group_code: searchByCode.trim() });
       if (error) throw error;
-      setResults(data || []);
+      setResults((data as any[]) || []);
       if ((data || []).length === 0) {
         toast({ title: "No group found", description: "Check the code and try again." });
       }
@@ -100,12 +97,12 @@ const SearchGroups: React.FC<SearchGroupsProps> = ({ onBack }) => {
         toast({ title: "Joined! 🎉", description: `You joined ${group.name}` });
       } else {
         // Send join request notification to creator
-        // Get user's username
+        // Get user's own username (RLS allows viewing own data)
         const { data: profile } = await supabase
           .from('users')
           .select('username, name')
           .eq('auth_user_id', user.id)
-          .single();
+          .maybeSingle();
 
         const { error } = await supabase
           .from('notifications')

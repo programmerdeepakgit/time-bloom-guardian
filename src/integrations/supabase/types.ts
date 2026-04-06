@@ -271,7 +271,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_group_members: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      find_user_by_username: {
+        Args: { _username: string }
+        Returns: {
+          auth_user_id: string
+          name: string
+          username: string
+        }[]
+      }
       generate_group_code: { Args: never; Returns: string }
+      get_group_by_code: {
+        Args: { _group_code: string }
+        Returns: {
+          created_by: string
+          description: string
+          group_code: string
+          id: string
+          is_public: boolean
+          name: string
+        }[]
+      }
+      get_group_member_profiles: {
+        Args: { _group_id: string }
+        Returns: {
+          currently_studying_subject: string
+          is_studying: boolean
+          name: string
+          role: string
+          total_study_time: number
+          user_id: string
+          username: string
+        }[]
+      }
       get_leaderboard: {
         Args: never
         Returns: {
@@ -284,6 +319,10 @@ export type Database = {
           updated_at: string
           username: string
         }[]
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
