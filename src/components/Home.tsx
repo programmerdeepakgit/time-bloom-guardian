@@ -25,7 +25,8 @@ import {
   Coffee,
   BarChart3,
   Users,
-  Bell
+  Bell,
+  Megaphone
 } from 'lucide-react';
 import ProfileSettings from './ProfileSettings';
 import Feedback from './Feedback';

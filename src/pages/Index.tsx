@@ -109,6 +109,8 @@ const Index = () => {
           }}
         />
       );
+    case 'admin-broadcast':
+      return <AdminBroadcast onBack={handleBackToHome} />;
     default:
       return <Home onNavigate={handleNavigate} />;
   }
