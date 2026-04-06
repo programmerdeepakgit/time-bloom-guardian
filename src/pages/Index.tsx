@@ -15,6 +15,7 @@ import CreateGroup from '@/components/CreateGroup';
 import SearchGroups from '@/components/SearchGroups';
 import GroupDetail from '@/components/GroupDetail';
 import Notifications from '@/components/Notifications';
+import AdminBroadcast from '@/components/AdminBroadcast';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -108,6 +109,8 @@ const Index = () => {
           }}
         />
       );
+    case 'admin-broadcast':
+      return <AdminBroadcast onBack={handleBackToHome} />;
     default:
       return <Home onNavigate={handleNavigate} />;
   }

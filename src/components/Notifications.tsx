@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { TimerButton } from '@/components/ui/timer-button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Bell, Check, X, Users, UserPlus, Play, Trash2 } from 'lucide-react';
+import { Bell, Check, X, Users, UserPlus, Play, Trash2, Megaphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NotificationsProps {
@@ -155,6 +155,7 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
       case 'study_session': return <Play className="w-5 h-5 text-success" />;
       case 'request_accepted': return <Check className="w-5 h-5 text-success" />;
       case 'request_rejected': return <X className="w-5 h-5 text-destructive" />;
+      case 'announcement': return <Megaphone className="w-5 h-5 text-primary" />;
       default: return <Bell className="w-5 h-5 text-muted-foreground" />;
     }
   };
