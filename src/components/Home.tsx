@@ -272,6 +272,8 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     },
   ];
 
+  const isAdmin = userProfile?.username === 'programmer_deepak';
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto space-y-6">
