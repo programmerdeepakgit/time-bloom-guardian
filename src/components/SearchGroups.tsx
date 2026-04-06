@@ -97,11 +97,12 @@ const SearchGroups: React.FC<SearchGroupsProps> = ({ onBack }) => {
         toast({ title: "Joined! 🎉", description: `You joined ${group.name}` });
       } else {
         // Send join request notification to creator
-        // Get user's username via RPC
-        const { data: profiles } = await supabase
-          .rpc('find_user_by_username', { _username: '' });
-        // Fallback: use auth user metadata or empty
-        const profile = null;
+        // Get user's own username (RLS allows viewing own data)
+        const { data: profile } = await supabase
+          .from('users')
+          .select('username, name')
+          .eq('auth_user_id', user.id)
+          .maybeSingle();
 
         const { error } = await supabase
           .from('notifications')
