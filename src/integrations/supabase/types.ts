@@ -284,6 +284,21 @@ export type Database = {
         }[]
       }
       generate_group_code: { Args: never; Returns: string }
+      get_all_user_auth_ids: {
+        Args: never
+        Returns: {
+          auth_user_id: string
+          username: string
+        }[]
+      }
+      get_app_stats: {
+        Args: never
+        Returns: {
+          active_studiers: number
+          total_study_time_all: number
+          total_users: number
+        }[]
+      }
       get_group_by_code: {
         Args: { _group_code: string }
         Returns: {
