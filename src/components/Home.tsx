@@ -572,7 +572,7 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
                 <span className="text-xs font-bold text-primary">G</span>
               </div>
-              <h2 className="text-xl font-semibold text-foreground">Study Groups</h2>
+              <h2 className="text-xl font-semibold text-foreground">Groups & Tasks</h2>
             </div>
             <div className="grid gap-3">
               {socialItems.map((item, index) => {
