@@ -11,6 +11,7 @@ import {
   BookOpen, 
   GraduationCap, 
   Clock,
+  ClipboardList,
   TrendingUp,
   Trophy,
   User,
@@ -270,6 +271,13 @@ const Home: React.FC<HomeProps> = ({ onNavigate }) => {
       icon: Users,
       color: 'primary',
       action: () => onNavigate('groups'),
+    },
+    {
+      title: 'Assignments',
+      description: 'Track daily tasks with subjects & due dates',
+      icon: ClipboardList,
+      color: 'primary',
+      action: () => onNavigate('assignments'),
     },
   ];
 
