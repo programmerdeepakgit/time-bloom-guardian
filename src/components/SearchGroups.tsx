@@ -97,12 +97,13 @@ const SearchGroups: React.FC<SearchGroupsProps> = ({ onBack }) => {
         toast({ title: "Joined! 🎉", description: `You joined ${group.name}` });
       } else {
         // Send join request notification to creator
-        // Get user's own username (RLS allows viewing own data)
         const { data: profile } = await supabase
           .from('users')
           .select('username, name')
           .eq('auth_user_id', user.id)
           .maybeSingle();
+
+        const displayName = profile?.username || profile?.name || 'Someone';
 
         const { error } = await supabase
           .from('notifications')
@@ -111,10 +112,13 @@ const SearchGroups: React.FC<SearchGroupsProps> = ({ onBack }) => {
             type: 'join_request',
             from_user_id: user.id,
             group_id: group.id,
-            message: `${profile?.username || profile?.name || 'Someone'} wants to join "${group.name}"`,
-            data: { requester_id: user.id },
+            message: `${displayName} wants to join "${group.name}"`,
+            data: { requester_id: user.id, requester_name: displayName },
           });
-        if (error) throw error;
+        if (error) {
+          console.error('Notification insert error:', error);
+          throw error;
+        }
 
         toast({ title: "Request Sent!", description: "The group creator will review your request." });
       }
