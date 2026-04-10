@@ -76,8 +76,26 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
   };
 
   const handleAcceptJoinRequest = async (notification: NotificationItem) => {
-    if (!user || !notification.group_id || !notification.data?.requester_id) return;
+    if (!user || !notification.group_id || !notification.data?.requester_id) {
+      console.error('Missing data for accept:', { group_id: notification.group_id, requester_id: notification.data?.requester_id });
+      toast({ title: "Missing request data", variant: "destructive" });
+      return;
+    }
     try {
+      // Check if already a member
+      const { data: existingMember } = await supabase
+        .from('group_members')
+        .select('id')
+        .eq('group_id', notification.group_id)
+        .eq('user_id', notification.data.requester_id)
+        .maybeSingle();
+
+      if (existingMember) {
+        await markAsRead(notification.id);
+        toast({ title: "User is already a member!" });
+        return;
+      }
+
       // Add requester as member
       const { error } = await supabase
         .from('group_members')
@@ -86,7 +104,10 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
           user_id: notification.data.requester_id,
           role: 'member',
         });
-      if (error) throw error;
+      if (error) {
+        console.error('Insert member error:', error);
+        throw error;
+      }
 
       // Notify the requester
       const { data: groupData } = await supabase
@@ -100,13 +121,14 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
         type: 'request_accepted',
         from_user_id: user.id,
         group_id: notification.group_id,
-        message: `Your request to join "${groupData?.name}" was accepted! 🎉`,
+        message: `Your request to join "${groupData?.name || 'the group'}" was accepted! 🎉`,
       });
 
       await markAsRead(notification.id);
       toast({ title: "Request Accepted!" });
-    } catch (error) {
-      toast({ title: "Failed to accept", variant: "destructive" });
+    } catch (error: any) {
+      console.error('Accept join request error:', error);
+      toast({ title: "Failed to accept", description: error.message, variant: "destructive" });
     }
   };
 
