@@ -45,31 +45,44 @@ const AdminBroadcast: React.FC<AdminBroadcastProps> = ({ onBack }) => {
     try {
       // Use RPC to get all user IDs (bypasses RLS)
       const { data: allUsers, error: usersError } = await supabase.rpc('get_all_user_auth_ids');
-      if (usersError) throw usersError;
+      if (usersError) {
+        console.error('RPC error:', usersError);
+        throw usersError;
+      }
 
-      const targets = (allUsers || []).filter((u: any) => u.auth_user_id !== user.id);
+      const targets = (allUsers || []).filter((u: any) => u.auth_user_id && u.auth_user_id !== user.id);
       if (targets.length === 0) {
         toast({ title: 'No users found', variant: 'destructive' });
         setSending(false);
         return;
       }
 
-      const notifications = targets.map((u: any) => ({
-        user_id: u.auth_user_id,
-        type: 'announcement',
-        from_user_id: user.id,
-        message: `📢 ${heading}${description ? ': ' + description : ''}`,
-        data: { heading, description },
-      }));
+      // Insert in batches of 25 to avoid payload limits
+      let sentCount = 0;
+      const batchSize = 25;
+      for (let i = 0; i < targets.length; i += batchSize) {
+        const batch = targets.slice(i, i + batchSize);
+        const notifications = batch.map((u: any) => ({
+          user_id: u.auth_user_id,
+          type: 'announcement',
+          from_user_id: user.id,
+          message: `📢 ${heading}${description ? ': ' + description : ''}`,
+          data: { heading, description },
+        }));
 
-      const { error } = await supabase.from('notifications').insert(notifications);
-      if (error) throw error;
+        const { error } = await supabase.from('notifications').insert(notifications);
+        if (error) {
+          console.error('Batch insert error:', error);
+          throw error;
+        }
+        sentCount += batch.length;
+      }
 
-      toast({ title: `Sent to ${targets.length} users! 🎉` });
+      toast({ title: `Sent to ${sentCount} users! 🎉` });
       setHeading('');
       setDescription('');
     } catch (error: any) {
-      console.error(error);
+      console.error('Broadcast error:', error);
       toast({ title: 'Failed to send', description: error.message, variant: 'destructive' });
     } finally {
       setSending(false);
