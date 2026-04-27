@@ -59,6 +59,68 @@ export type Database = {
         }
         Relationships: []
       }
+      group_assignment_completions: {
+        Row: {
+          assignment_id: string
+          completed_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          assignment_id: string
+          completed_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          assignment_id?: string
+          completed_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_assignment_completions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "group_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_assignments: {
+        Row: {
+          created_at: string
+          created_by: string
+          creator_name: string | null
+          due_date: string | null
+          group_id: string
+          id: string
+          subject: string
+          task: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          creator_name?: string | null
+          due_date?: string | null
+          group_id: string
+          id?: string
+          subject: string
+          task: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          creator_name?: string | null
+          due_date?: string | null
+          group_id?: string
+          id?: string
+          subject?: string
+          task?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
