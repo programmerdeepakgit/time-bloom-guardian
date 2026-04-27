@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import GroupAssignments from './GroupAssignments';
 
 interface GroupDetailProps {
   groupId: string;
@@ -326,6 +327,13 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
             <Play className="w-4 h-4 mr-2" /> Start & Notify Members
           </TimerButton>
         </Card>
+
+        {/* Group Assignments */}
+        <GroupAssignments
+          groupId={groupId}
+          groupName={group?.name || ''}
+          members={members.map(m => ({ user_id: m.user_id, username: m.username }))}
+        />
 
         {/* Invite */}
         <Card className="gradient-secondary p-4 space-y-3">
