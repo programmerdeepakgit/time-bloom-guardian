@@ -265,6 +265,18 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
                           Dismiss
                         </TimerButton>
                       </div>
+                    {!n.is_read && n.type === 'assignment' && n.group_id && (
+                      <div className="flex gap-2 mt-2">
+                        <TimerButton variant="start" size="sm" onClick={() => {
+                          markAsRead(n.id);
+                          onNavigateToGroup?.(n.group_id!);
+                        }}>
+                          <ClipboardList className="w-3 h-3 mr-1" /> View
+                        </TimerButton>
+                        <TimerButton variant="secondary" size="sm" onClick={() => markAsRead(n.id)}>
+                          Dismiss
+                        </TimerButton>
+                      </div>
                     )}
                   </div>
                   <button onClick={() => handleDelete(n.id)} className="p-1 text-muted-foreground hover:text-destructive">
