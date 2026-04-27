@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { TimerButton } from '@/components/ui/timer-button';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Bell, Check, X, Users, UserPlus, Play, Trash2, Megaphone } from 'lucide-react';
+import { Bell, Check, X, Users, UserPlus, Play, Trash2, Megaphone, ClipboardList } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NotificationsProps {
@@ -178,6 +178,7 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
       case 'request_accepted': return <Check className="w-5 h-5 text-success" />;
       case 'request_rejected': return <X className="w-5 h-5 text-destructive" />;
       case 'announcement': return <Megaphone className="w-5 h-5 text-primary" />;
+      case 'assignment': return <ClipboardList className="w-5 h-5 text-primary" />;
       default: return <Bell className="w-5 h-5 text-muted-foreground" />;
     }
   };
@@ -259,6 +260,19 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
                           onNavigateToGroup?.(n.group_id!);
                         }}>
                           <Play className="w-3 h-3 mr-1" /> View Group
+                        </TimerButton>
+                        <TimerButton variant="secondary" size="sm" onClick={() => markAsRead(n.id)}>
+                          Dismiss
+                        </TimerButton>
+                      </div>
+                    )}
+                    {!n.is_read && n.type === 'assignment' && n.group_id && (
+                      <div className="flex gap-2 mt-2">
+                        <TimerButton variant="start" size="sm" onClick={() => {
+                          markAsRead(n.id);
+                          onNavigateToGroup?.(n.group_id!);
+                        }}>
+                          <ClipboardList className="w-3 h-3 mr-1" /> View
                         </TimerButton>
                         <TimerButton variant="secondary" size="sm" onClick={() => markAsRead(n.id)}>
                           Dismiss
