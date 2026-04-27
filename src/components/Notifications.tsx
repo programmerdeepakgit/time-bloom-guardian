@@ -265,6 +265,7 @@ const Notifications: React.FC<NotificationsProps> = ({ onClose, onNavigateToGrou
                           Dismiss
                         </TimerButton>
                       </div>
+                    )}
                     {!n.is_read && n.type === 'assignment' && n.group_id && (
                       <div className="flex gap-2 mt-2">
                         <TimerButton variant="start" size="sm" onClick={() => {
