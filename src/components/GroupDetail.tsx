@@ -314,12 +314,16 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
               <Select value={studySubject} onValueChange={setStudySubject}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All Subjects</SelectItem>
                   <SelectItem value="physics">Physics</SelectItem>
                   <SelectItem value="chemistry">Chemistry</SelectItem>
-                  <SelectItem value="maths">Maths</SelectItem>
-                  <SelectItem value="computer-science">CS</SelectItem>
+                  <SelectItem value="maths">Mathematics</SelectItem>
+                  <SelectItem value="biology">Biology</SelectItem>
+                  <SelectItem value="computer-science">Computer Science</SelectItem>
                   <SelectItem value="english">English</SelectItem>
+                  <SelectItem value="hindi">Hindi</SelectItem>
+                  <SelectItem value="social-studies">Social Studies</SelectItem>
+                  <SelectItem value="mixed">Mixed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
