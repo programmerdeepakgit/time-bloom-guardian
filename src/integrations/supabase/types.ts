@@ -153,6 +153,36 @@ export type Database = {
           },
         ]
       }
+      group_session_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          last_seen_at: string
+          session_id: string
+          status: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          last_seen_at?: string
+          session_id: string
+          status?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          last_seen_at?: string
+          session_id?: string
+          status?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       group_study_sessions: {
         Row: {
           group_id: string
