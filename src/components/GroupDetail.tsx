@@ -16,7 +16,7 @@ import GroupAssignments from './GroupAssignments';
 interface GroupDetailProps {
   groupId: string;
   onBack: () => void;
-  onStartGroupStudy: (groupId: string, mode: 'pomodoro' | 'target-study', subject: string) => void;
+  onStartGroupStudy: (groupId: string, mode: 'pomodoro' | 'target-study' | 'simple', subject: string, groupName?: string) => void;
 }
 
 interface MemberInfo {
@@ -47,7 +47,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
   const [loading, setLoading] = useState(true);
   const [inviteUsername, setInviteUsername] = useState('');
   const [inviting, setInviting] = useState(false);
-  const [studyMode, setStudyMode] = useState<'pomodoro' | 'target-study'>('pomodoro');
+  const [studyMode, setStudyMode] = useState<'pomodoro' | 'target-study' | 'simple'>('pomodoro');
   const [studySubject, setStudySubject] = useState('all');
   const [isCreator, setIsCreator] = useState(false);
 
@@ -195,7 +195,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
       }
 
       toast({ title: "Group Study Started! 🚀", description: "All members have been notified." });
-      onStartGroupStudy(groupId, studyMode, studySubject);
+      onStartGroupStudy(groupId, studyMode, studySubject, group?.name);
     } catch (error) {
       toast({ title: "Failed to start session", variant: "destructive" });
     }
@@ -285,7 +285,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
                 <TimerButton
                   variant="start"
                   size="sm"
-                  onClick={() => onStartGroupStudy(groupId, session.mode as any, session.subject)}
+                  onClick={() => onStartGroupStudy(groupId, session.mode as any, session.subject, group?.name)}
                 >
                   <Play className="w-3 h-3 mr-1" /> Join
                 </TimerButton>
@@ -305,6 +305,7 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
                 <SelectContent>
                   <SelectItem value="pomodoro">🍅 Pomodoro</SelectItem>
                   <SelectItem value="target-study">🎯 Target Study</SelectItem>
+                  <SelectItem value="simple">⏱️ Stopwatch</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -313,12 +314,16 @@ const GroupDetail: React.FC<GroupDetailProps> = ({ groupId, onBack, onStartGroup
               <Select value={studySubject} onValueChange={setStudySubject}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">All Subjects</SelectItem>
                   <SelectItem value="physics">Physics</SelectItem>
                   <SelectItem value="chemistry">Chemistry</SelectItem>
-                  <SelectItem value="maths">Maths</SelectItem>
-                  <SelectItem value="computer-science">CS</SelectItem>
+                  <SelectItem value="maths">Mathematics</SelectItem>
+                  <SelectItem value="biology">Biology</SelectItem>
+                  <SelectItem value="computer-science">Computer Science</SelectItem>
                   <SelectItem value="english">English</SelectItem>
+                  <SelectItem value="hindi">Hindi</SelectItem>
+                  <SelectItem value="social-studies">Social Studies</SelectItem>
+                  <SelectItem value="mixed">Mixed</SelectItem>
                 </SelectContent>
               </Select>
             </div>

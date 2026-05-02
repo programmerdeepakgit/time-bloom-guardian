@@ -17,6 +17,7 @@ import GroupDetail from '@/components/GroupDetail';
 import Notifications from '@/components/Notifications';
 import AdminBroadcast from '@/components/AdminBroadcast';
 import Assignments from '@/components/Assignments';
+import GroupStudyTimer from '@/components/GroupStudyTimer';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -92,11 +93,21 @@ const Index = () => {
           groupId={pageData?.groupId}
           onBack={() => setCurrentPage('groups')}
           onStartGroupStudy={(groupId, mode, subject) => {
-            if (mode === 'pomodoro') {
-              setCurrentPage('pomodoro');
-            } else {
-              setCurrentPage('target-study');
-            }
+            setPageData({ groupId, mode, subject, groupName: pageData?.groupName });
+            setCurrentPage('group-study-timer');
+          }}
+        />
+      );
+    case 'group-study-timer':
+      return (
+        <GroupStudyTimer
+          groupId={pageData?.groupId}
+          initialMode={pageData?.mode}
+          initialSubject={pageData?.subject}
+          groupName={pageData?.groupName}
+          onBack={() => {
+            setPageData({ groupId: pageData?.groupId });
+            setCurrentPage('group-detail');
           }}
         />
       );
